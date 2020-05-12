@@ -19,6 +19,9 @@ import fullscreen from 'vue-fullscreen'
 import InstantSearch from 'vue-instantsearch'
 import VueVideoPlayer from 'vue-video-player';
 import Croppa from 'vue-croppa';
+// lightbox
+import CoolLightBox from 'vue-cool-lightbox'
+import 'vue-cool-lightbox/dist/vue-cool-lightbox.min.css'
 
 //jquery
 import $ from 'jquery';
@@ -109,6 +112,7 @@ Vue.use(GlobalComponents);
 Vue.use(VueVideoPlayer);
 Vue.use(Croppa);
 Vue.use(moment);
+Vue.use(CoolLightBox);
 Vue.prototype.$RMT = RMT;
 
 Vue.use($);

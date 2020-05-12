@@ -70,10 +70,6 @@
                   <div v-show="props.item.facturas.length == 0 && props.item.facturacion==false">
                     <span>No facturable</span>
                   </div>
-                  <!-- <v-icon
-                    v-if="props.item.estatus=='P'"
-                    @click="ponerFacturado(props.item.id_comprobante_pago)"
-                  >far fa-check-square</v-icon>-->
                 </td>
                 <td>
                   <!-- <v-tooltip top>
@@ -90,7 +86,7 @@
                       </v-btn>
                     </template>
                     <span>Cancelar Comprobante</span>
-                  </v-tooltip> -->
+                  </v-tooltip>-->
                   <v-tooltip top>
                     <template v-slot:activator="{ on }">
                       <v-btn
@@ -98,35 +94,122 @@
                         text
                         icon
                         v-on="on"
+                        @click="abrirDialogArchivos(props.item)"
                       >
-                        <v-icon>fas fa-eye</v-icon>
+                        <v-icon>fas fa-file</v-icon>
                       </v-btn>
                     </template>
-                    <span>Ver comprobantes</span>
+                    <span>Ver Archivos</span>
                   </v-tooltip>
                 </td>
               </tr>
             </template>
           </v-data-table>
-          <v-snackbar
-            v-model="snackbar"
-            :bottom="true"
-            :right="true"
-            :color="'success'"
-            :timeout="1000"
-          >
-            {{ text }}
-            <v-btn color="white" text @click="snackbar = false">Cerrar</v-btn>
-          </v-snackbar>
         </app-card>
       </v-row>
     </v-container>
+    <v-dialog
+      v-model="dialog_archivos"
+      fullscreen
+      persistent
+      max-width="600px"
+      transition="dialog-bottom-transition"
+    >
+      <v-card>
+        <v-toolbar dark color="pink">
+          <v-toolbar-title>Comprobante de pago #{{ editItemComprobante.id_comprobante_pago }}</v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-toolbar-items>
+            <v-btn
+              icon
+              dark
+              @click="
+                dialog_archivos = false;
+                clearDropzone();
+                editItemComprobante = [];
+                editedIndex = -1;
+              "
+              class="pt-0"
+            >
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+          </v-toolbar-items>
+        </v-toolbar>
+        <v-container>
+          <app-card colClasses="col-12 " customClasses="mb-0 mt-0">
+            <h3>Archivos Subidos</h3>
+            <CoolLightBox :items="files" :index="index" :effect="'fade'" @close="index = null"></CoolLightBox>
+            <v-row dense class="images-wrapper">
+              <v-col
+                v-show="array_files.count > 0"
+                v-for="(file,fileIndex) in files"
+                :key="fileIndex"
+                cols="2"
+                class="image"
+              >
+                <v-card>
+                  <v-img
+                    :src="file.src"
+                    class="white--text align-end"
+                    gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
+                    height="200px"
+                    @click="index = fileIndex"
+                    style="cursor: pointer;"
+                  >
+                    <!-- <v-card-title v-text="'Pre-fab homes'"></v-card-title> -->
+                  </v-img>
+                  <v-card-actions>
+                    <v-btn icon @click="deleteFile(file)">
+                      <v-icon>fas fa-trash</v-icon>
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-col>
+              <v-col v-show="array_files.count == 0">
+                <v-alert type="info">El comprobante no tiene archivos en el servidor</v-alert>
+              </v-col>
+            </v-row>
+          </app-card>
+          <app-card colClasses="col-12 " customClasses="mb-0 mt-0">
+            <h3>Subir Comprobante</h3>
+            <v-row>
+              <v-col cols="6 mx-auto">
+                <vue-dropzone
+                  ref="myVueDropzone"
+                  id="dropzone"
+                  :options="dropzoneOptions"
+                  v-on:vdropzone-sending="addParametersFile"
+                  v-on:vdropzone-complete="successUpload"
+                ></vue-dropzone>
+              </v-col>
+            </v-row>
+          </app-card>
+        </v-container>
+      </v-card>
+    </v-dialog>
+    <v-snackbar
+      v-model="snackbar"
+      :bottom="true"
+      :right="true"
+      :color="color_alerta"
+      :timeout="6000"
+    >
+      {{mensaje_alerta}}
+      <v-btn dark text @click="snackbar = false">
+        <v-icon>mdi-close</v-icon>
+      </v-btn>
+    </v-snackbar>
   </div>
 </template>
 
 <script>
 import moment from "moment";
+import vue2Dropzone from "vue2-dropzone";
+import "vue2-dropzone/dist/vue2Dropzone.min.css";
 export default {
+  components: {
+    vueDropzone: vue2Dropzone
+  },
   data() {
     return {
       loader: false,
@@ -147,8 +230,29 @@ export default {
         { text: "Facturación", value: "actions", sortable: false },
         { text: "Opciones", value: "actions", sortable: false }
       ],
+      dialog_archivos: false,
+      editedIndex: -1,
+      editItemComprobante: [],
+      array_files: [],
+      files: [],
+      dropzoneOptions: {
+        url:
+          "https://www.rutamayatravel.com/sur4dev/admin/contabilidad/comprobantesPago/subirArchivo",
+        method: "POST",
+        thumbnailWidth: 150,
+        maxFilesize: 5,
+        dictDefaultMessage:
+          "<i class='fas fa-cloud-upload'></i>Arrastra archivos a subir o click aquí",
+        headers: {
+          "Cache-Control": null,
+          "X-Requested-With": null
+        },
+        autoProcessQueue: true
+      },
+      index: null,
       snackbar: false,
-      text: "Comprobante Facturado"
+      color_alerta: "",
+      mensaje_alerta: ""
     };
   },
   methods: {
@@ -173,12 +277,6 @@ export default {
     },
     formatDate(value) {
       return moment(value).format("DD/MM/YYYY");
-    },
-    formatPrice(value) {
-      var redondear = Math.ceil(value);
-      let val = (redondear / 1).toFixed(2).replace(",", ".");
-      // console.log(value);
-      return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     },
     getEstatus(estatus, peticion) {
       var valor = "";
@@ -209,15 +307,83 @@ export default {
 
       return valor;
     },
-    ponerFacturado: function(item) {
-      this.snackbar = true;
-      console.log(item);
-      //   this.$http
-      //     .post(redirectRMt + sur4 + "/pagos/quitarRecibo", {
-      //       id: item,
-      //       tipo: "comprobante"
-      //     })
-      //     .then(function(response) {});
+    abrirDialogArchivos(item) {
+      this.obtenerItemTablaComprobante(item);
+      this.getFiles();
+    },
+    obtenerItemTablaComprobante(item) {
+      this.editedIndex = this.array_comprobantes.indexOf(item);
+      this.editItemComprobante = Object.assign({}, item);
+    },
+    getFiles() {
+      this.$http
+        .get(
+          "https://www.rutamayatravel.com/" +
+            this.sur4 +
+            "/contabilidad/comprobantesPago/getFiles/idPago/" +
+            this.editItemComprobante.id_comprobante_pago
+        )
+        .then(
+          response => {
+            this.files = [];
+            this.dialog_archivos = true;
+            this.array_files = response.body;
+            this.array_files.files.forEach(file => {
+              this.files.push({
+                src:
+                  "https://rutamayatravel.com/images/archivos-comprobantespagos/" +
+                  file.archivo,
+                title: file.archivo,
+                description: "Comprobante " + file.id_comprobante_pago,
+                id: file.id_comprobante,
+                comprobante: file.id_comprobante_pago
+              });
+            });
+          },
+          error => {
+            console.log(error);
+          }
+        );
+    },
+    deleteFile(item) {
+      this.$http
+        .post(
+          "https://www.rutamayatravel.com/" +
+            this.sur4 +
+            "/contabilidad/comprobantesPago/borrarArchivo",
+          { id: item.id },
+          {
+            emulateJSON: true
+          }
+        )
+        .then(
+          response => {
+            this.color_alerta = "success";
+            this.mensaje_alerta = response.body;
+            this.snackbar = true;
+            this.getFiles();
+          },
+          error => {
+            console.log(error);
+            this.color_alerta = "error";
+            this.mensaje_alerta =
+              "Ocurrió un error en la eliminación de los archivos. " + error;
+            this.snackbar = true;
+          }
+        );
+    },
+    addParametersFile(file, xhr, formData) {
+      formData.append(
+        "idComprobante",
+        this.editItemComprobante.id_comprobante_pago
+      );
+    },
+    successUpload(response) {
+      console.log(response);
+      this.getFiles();
+    },
+    clearDropzone() {
+      this.$refs.myVueDropzone.removeAllFiles();
     }
   },
   computed: {},

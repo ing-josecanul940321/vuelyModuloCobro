@@ -217,7 +217,9 @@
         <v-dialog v-model="dialog_eliminar_detalle" persistent max-width="600">
           <v-card>
             <v-card-title class="headline">{{mensaje_confirmacion_title}}</v-card-title>
-
+            <v-card-text v-show="showMotivo">
+              <v-text-field v-model="editItemOrden.motivo_cancelacion" label="Motivo de Cancelación"></v-text-field>
+            </v-card-text>
             <v-card-text v-html="mensaje_confirmacion_body"></v-card-text>
 
             <v-card-actions>
@@ -231,7 +233,7 @@
                   idEliminar = '';
                   itemEliminar = [];
                 "
-              >CANCELAR</v-btn>
+              >Cerrar</v-btn>
 
               <v-btn
                 v-show="idEliminar != ''"
@@ -674,6 +676,7 @@ export default {
       itemEliminar: [],
       mensaje_confirmacion_title: "",
       mensaje_confirmacion_body: "",
+      showMotivo: false,
 
       // ################### MODAL ##################
       dialog_pagar: false,
@@ -878,7 +881,9 @@ export default {
     },
     confirmRemoveDetalle(item) {
       this.dialog_eliminar_detalle = true;
+      this.showMotivo = false;
       if (item == null) {
+        this.showMotivo = true;
         this.mensaje_confirmacion_title =
           "¿Estas seguro de cancelar la orden " +
           this.editItemOrden.id_orden_pago +
@@ -914,7 +919,7 @@ export default {
           OrdenPagoDetalles: this.array_detalles
         }
       };
-
+      console.log(data);
       this.$http
         .post(
           "https://www.rutamayatravel.com/" +
