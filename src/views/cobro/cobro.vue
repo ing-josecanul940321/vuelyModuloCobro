@@ -78,7 +78,7 @@
             </v-col>
           </v-row>
         </v-container>
-        <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
+        <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition" persistent>
           <v-card>
             <v-toolbar dark color="pink">
               <v-toolbar-title>{{nombre_agencia}} - ID: {{id_agencia}}</v-toolbar-title>
