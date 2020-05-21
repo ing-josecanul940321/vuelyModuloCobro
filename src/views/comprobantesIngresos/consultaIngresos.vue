@@ -178,7 +178,7 @@ export default {
       this.loader = true;
       this.$http
         .get(
-          "https://www.rutamayatravel.com/sur4/admin/pagos/consultaRecibos?agencia=" +
+          this.redirectRMTApi + "pagos/consultaRecibos?agencia=" +
             this.idAgencia
         )
         .then(
@@ -196,7 +196,7 @@ export default {
       this.loaderNC = true;
       this.$http
         .get(
-          "https://www.rutamayatravel.com/sur4/admin/pagos/consultaNotasCredito?agencia=" +
+          this.redirectRMTApi + "pagos/consultaNotasCredito?agencia=" +
             this.idAgencia
         )
         .then(
@@ -214,7 +214,7 @@ export default {
       this.loaderCA = true;
       this.$http
         .get(
-          "https://www.rutamayatravel.com/sur4/admin/pagos/consultaComisionAgencias?agencia=" +
+          this.redirectRMTApi + "pagos/consultaComisionAgencias?agencia=" +
             this.idAgencia
         )
         .then(
@@ -237,7 +237,7 @@ export default {
         this.isLoading = true;
         this.$http
           .get(
-            "https://www.rutamayatravel.com/sur4/admin/produccionesVentas/busquedaAgencias?search=" +
+            this.redirectRMTApi + "produccionesVentas/busquedaAgencias?search=" +
               query,
             {
               before(request) {

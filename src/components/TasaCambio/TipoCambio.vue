@@ -21,7 +21,7 @@ export default {
     changeTipoCambio() {
       this.$http
         .post(
-          'https://www.rutamayatravel.com/' + this.sur4 + "/contabilidad/comprobantesPago/modificarTipoCambio",
+          this.redirectRMTApi + "contabilidad/comprobantesPago/modificarTipoCambio",
           {
             importe: this.value
           },

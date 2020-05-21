@@ -36,7 +36,7 @@ export default {
         loadAgencias() {
             this.loader = true;
             this.$http
-                .get("https://www.rutamayatravel.com/sur4/admin/apivue/listadoAgenciasConBloqueo")
+                .get(this.redirectRMTApi + "apivue/listadoAgenciasConBloqueo")
                 .then(
                     function (response) {
 

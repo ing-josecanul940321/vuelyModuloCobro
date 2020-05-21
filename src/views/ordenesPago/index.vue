@@ -32,9 +32,7 @@
                 <td class="text-right">
                   <a
                     :href="
-                      redirectRMT +
-                        sur4 +
-                        '/contabilidad/ordenPago/GeneratePdf/idOrden/' +
+                      redirectRMT + 'contabilidad/ordenPago/GeneratePdf/idOrden/' +
                         props.item.id_orden_pago
                     "
                     target="_blank"
@@ -59,9 +57,7 @@
                   </v-tooltip>
                   <a
                     :href="
-                      redirectRMT +
-                        sur4 +
-                        '/contabilidad/ordenPago/GeneratePdf/idOrden/' +
+                      redirectRMT + 'contabilidad/ordenPago/GeneratePdf/idOrden/' +
                         props.item.id_orden_pago
                     "
                     target="_blank"
@@ -677,6 +673,7 @@ export default {
       mensaje_confirmacion_title: "",
       mensaje_confirmacion_body: "",
       showMotivo: false,
+      saldo_actual: 0,
 
       // ################### MODAL ##################
       dialog_pagar: false,
@@ -742,7 +739,7 @@ export default {
       // upload image
       dropzoneOptions: {
         url:
-          "https://www.rutamayatravel.com/sur4dev/admin/contabilidad/comprobantesPago/subirArchivo",
+          this.redirectRMTApi + "contabilidad/comprobantesPago/subirArchivo",
         method: "POST",
         thumbnailWidth: 150,
         maxFilesize: 5,
@@ -765,9 +762,8 @@ export default {
       this.loader = true;
       this.$http
         .get(
-          "https://www.rutamayatravel.com/" +
-            this.sur4 +
-            "/contabilidad/ordenPago/obtenerOrdenesPago"
+          this.redirectRMTApi +
+            "contabilidad/ordenPago/obtenerOrdenesPago"
         )
         .then(
           function(response) {
@@ -793,9 +789,8 @@ export default {
       this.loaderD = true;
       this.$http
         .get(
-          "https://www.rutamayatravel.com/" +
-            this.sur4 +
-            "/contabilidad/ordenPago/obtenerOrdenesDetalles?idOrden=" +
+          this.redirectRMTApi +
+            "contabilidad/ordenPago/obtenerOrdenesDetalles?idOrden=" +
             item
         )
         .then(
@@ -889,7 +884,7 @@ export default {
           this.editItemOrden.id_orden_pago +
           "?";
         this.mensaje_confirmacion_body =
-          "Estas a punto de cancelar la orden. Esta acción es irreversible. Si se detecta saldo a favor, se creará una póliza.";
+          "Estas a punto de cancelar la orden. Esta acción es irreversible. Si se detecta saldo a favor, se agregará a la cuenta de fondo del agencia.";
       } else {
         this.itemEliminar = item;
         this.idEliminar = this.prefijoIdentificador(
@@ -899,7 +894,7 @@ export default {
         this.mensaje_confirmacion_title =
           "¿Estas seguro de eliminar el artículo " + this.idEliminar + "?";
         this.mensaje_confirmacion_body =
-          "Estas a punto de eliminar un detalle de la orden. Esta acción es irreversible. Si se detecta saldo a favor, se creará una póliza.";
+          "Estas a punto de eliminar un detalle de la orden. Esta acción es irreversible. Si se detecta saldo a favor, se agregará a la cuenta de fondo del agencia.";
       }
     },
     removeItemDetalle() {
@@ -913,18 +908,24 @@ export default {
       this.actualizarItem();
     },
     actualizarItem() {
+      var agregaCuenta = false;
+      console.log(this.editItemOrden.importe_total);
+      
+      if (parseFloat(parseFloat(this.saldo_actual) > this.editItemOrden.importe_total)) {
+        agregaCuenta = true;
+      }
       var data = {
         Orden: {
           OrdenPago: this.editItemOrden,
           OrdenPagoDetalles: this.array_detalles
-        }
+        },
+        agregaCuenta: agregaCuenta,
       };
       console.log(data);
       this.$http
         .post(
-          "https://www.rutamayatravel.com/" +
-            this.sur4 +
-            "/contabilidad/ordenPago/crearOrdenPago",
+          this.redirectRMTApi +
+            "contabilidad/ordenPago/crearOrdenPago",
           data,
           {
             emulateJSON: true
@@ -958,6 +959,9 @@ export default {
       this.editedIndex = this.array_ordenes.indexOf(item);
       // copia todas las propiedades enumerables de uno o más objetos fuente a un objeto destino
       this.editItemOrden = Object.assign({}, item);
+      this.saldo_actual = this.editItemOrden.importe_total;
+      console.log(this.saldo_actual);
+      
     },
     deleteItemTablaDetalles() {
       const index = this.array_detalles.indexOf(this.itemEliminar);
@@ -974,9 +978,8 @@ export default {
       this.obtenerItemTablaOrden(item);
       this.$http
         .get(
-          "https://www.rutamayatravel.com/" +
-            this.sur4 +
-            "/contabilidad/ordenPago/consultaOrdenPago/idOrden/" +
+          this.redirectRMTApi +
+            "contabilidad/ordenPago/consultaOrdenPago/idOrden/" +
             item.id_orden_pago
         )
         .then(
@@ -1028,9 +1031,7 @@ export default {
           };
           this.$http
             .post(
-              "https://www.rutamayatravel.com/" +
-                this.sur4 +
-                "/contabilidad/comprobantesPago/generarComprobantePago",
+              this.redirectRMTApi + "contabilidad/comprobantesPago/generarComprobantePago",
               comprobante,
               {
                 emulateJSON: true
@@ -1079,9 +1080,7 @@ export default {
                   this.estatus_pago = "success";
                   this.alert_mensaje = "Pago realizado con éxito.";
                   this.redirect_pdf_comprobante =
-                    "https://www.rutamayatravel.com/" +
-                    this.sur4 +
-                    "/contabilidad/ordenPago/GeneratePdf/idOrden/" +
+                    this.redirectRMT + "contabilidad/ordenPago/GeneratePdf/idOrden/" +
                     this.comprobantesPago.id_orden_pago;
                 } else {
                   this.mensaje(
@@ -1103,9 +1102,7 @@ export default {
     consultaFormulario() {
       this.$http
         .get(
-          "https://www.rutamayatravel.com/" +
-            this.sur4 +
-            "/contabilidad/ordenPago/consultaFormulario"
+          this.redirectRMTApi + "contabilidad/ordenPago/consultaFormulario"
         )
         .then(
           function(response) {
@@ -1121,9 +1118,7 @@ export default {
       if (this.comprobantesPago.id_tipo == "15") {
         this.$http
           .get(
-            "https://www.rutamayatravel.com/" +
-              this.sur4 +
-              "/contabilidad/comprobantesPago/polizasAgencia/agencia/8"
+            this.redirectRMTApi + "contabilidad/comprobantesPago/polizasAgencia/agencia/8"
           )
           .then(
             function(response) {
@@ -1140,9 +1135,7 @@ export default {
     comisionBancaria() {
       this.$http
         .post(
-          "https://www.rutamayatravel.com/" +
-            this.sur4 +
-            "/contabilidad/ordenPago/comisionbancaria",
+          this.redirectRMTApi + "contabilidad/ordenPago/comisionbancaria",
           {
             cuenta: this.comprobantesPago.id_cuenta,
             plan: this.comprobantesPago.id_planpago

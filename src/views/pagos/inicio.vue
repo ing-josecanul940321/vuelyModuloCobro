@@ -132,7 +132,7 @@ export default {
       this.loader = true;
       this.$http
         .get(
-          "https://www.rutamayatravel.com/sur4/admin/apivue/listaProximosPagosAllBloqueos"
+          this.redirectRMTApi + "apivue/listaProximosPagosAllBloqueos"
         )
         .then(
           function(response) {

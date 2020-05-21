@@ -225,9 +225,8 @@ export default {
       this.loader = true;
       this.$http
         .get(
-          "https://www.rutamayatravel.com/" +
-            this.sur4 +
-            "/contabilidad/contCatalogoCtas/obtenerCuentas"
+          this.redirectRMTApi +
+            "contabilidad/contCatalogoCtas/obtenerCuentas"
         )
         .then(
           function(response) {
@@ -266,9 +265,8 @@ export default {
         var editedIndex = this.editedIndex;
         this.$http
           .post(
-            "https://www.rutamayatravel.com/" +
-              this.sur4 +
-              "/contabilidad/contCatalogoCtas/update/id/" +
+            this.redirectRMTApi +
+              "contabilidad/contCatalogoCtas/update/id/" +
               id_item,
             {
               CatalogoCtas: this.editedItem
@@ -279,7 +277,7 @@ export default {
             this.editedItem = response.body;
             Object.assign(this.cuentas[editedIndex], this.editedItem);
             this.close();
-            this.text_snackbar = "Datos actualizados;";
+            this.text_snackbar = "Datos actualizados.";
             this.snackbar = true;
           });
       } else {

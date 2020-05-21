@@ -117,7 +117,7 @@ export default {
             ],
             // ########
             dropzoneOptions: {
-                url: 'https://www.rutamayatravel.com/sur4dev/admin/contabilidad/comprobantesPago/subirArchivo',
+                url: this.redirectRMTApi + 'contabilidad/comprobantesPago/subirArchivo',
                 method: 'POST',
                 thumbnailWidth: 150,
                 maxFilesize: 5,
@@ -153,7 +153,7 @@ export default {
                 id_agencia = this.model_agencia_selected.id_agencia;
             }
             this.$http
-                .get(this.RMTURL + "contabilidad/ordenPago/search?identificador=" + this.id_producto + '&agencia=' + id_agencia).then(function (response) {
+                .get(this.redirectRMTApi + "contabilidad/ordenPago/search?identificador=" + this.id_producto + '&agencia=' + id_agencia).then(function (response) {
                         this.array_temp_producto = response.body;
 
                         if (this.array_temp_producto.empty == "No ingreso algun código de busqueda") {
@@ -212,7 +212,7 @@ export default {
                 'Orden': this.array_test
             };
             var total_saldo = this.total_saldo;
-            this.$http.post(this.RMTURL + 'contabilidad/ordenPago/crearOrdenPago', data, {
+            this.$http.post(this.redirectRMTApi + 'contabilidad/ordenPago/crearOrdenPago', data, {
                 emulateJSON: true
             }).then(function (response) {
                 if (response.body.error == false) {
@@ -235,7 +235,7 @@ export default {
                         this.saldores = saldo_restante;
                         this.dialog_guardar_pagar = true;
                     } else {
-                        window.open(this.RMTURL + "contabilidad/ordenPago/GeneratePdf/idOrden/" + model.model.id_orden_pago, '_blank');
+                        window.open(this.redirectRMT + "contabilidad/ordenPago/GeneratePdf/idOrden/" + model.model.id_orden_pago, '_blank');
                     }
                     this.mensaje("Se ha guardado la orden correctamente", "green");
                 } else {
@@ -255,7 +255,7 @@ export default {
             };
             var total_saldo = this.total_saldo;
             var total_saldo_aux = this.total_saldo;
-            this.$http.post(this.RMTURL + 'contabilidad/ordenPago/crearOrdenPago', data, {
+            this.$http.post(this.redirectRMTApi + 'contabilidad/ordenPago/crearOrdenPago', data, {
                 emulateJSON: true
             }).then(function (response) {
                 if (response.body.error == false) {
@@ -265,7 +265,7 @@ export default {
                     if (this.agencia_pagar_orden == true) {
                         if (model.saldada == true) {
                             this.resetAll();
-                            window.open(this.RMTURL + "contabilidad/ordenPago/GeneratePdf/idOrden/" + model.model.id_orden_pago, '_blank');
+                            window.open(this.redirectRMT + "contabilidad/ordenPago/GeneratePdf/idOrden/" + model.model.id_orden_pago, '_blank');
                         } else {
                             this.dialog_guardar_pagar = true;
                             this.comprobantesPago.id_orden_pago = model.model.id_orden_pago;
@@ -290,7 +290,7 @@ export default {
                         if (model.saldada == true) {
                             this.resetAll();
                         }
-                        window.open(this.RMTURL + "contabilidad/ordenPago/GeneratePdf/idOrden/" + model.model.id_orden_pago, '_blank');
+                        window.open(this.redirectRMT + "contabilidad/ordenPago/GeneratePdf/idOrden/" + model.model.id_orden_pago, '_blank');
                     }
                     this.mensaje("Se ha actualizado la orden correctamente", "green");
                 } else {
@@ -313,7 +313,7 @@ export default {
                         "total": this.total_pago,
                         "saldores": this.saldores
                     }
-                    this.$http.post(this.RMTURL + 'contabilidad/comprobantesPago/generarComprobantePago', comprobante, {
+                    this.$http.post(this.redirectRMTApi + 'contabilidad/comprobantesPago/generarComprobantePago', comprobante, {
                         emulateJSON: true
                     }).then(function (response) {
                         this.hidden_click_pagar = true;
@@ -354,7 +354,7 @@ export default {
                             this.dialog_confirmacion_pago = true;
                             this.estatus_pago = 'success';
                             this.alert_mensaje = 'Pago realizado con éxito.';
-                            this.redirect_pdf_comprobante = this.RMTURL + "contabilidad/ordenPago/GeneratePdf/idOrden/" + this.comprobantesPago.id_orden_pago;
+                            this.redirect_pdf_comprobante = this.redirectRMT + "contabilidad/ordenPago/GeneratePdf/idOrden/" + this.comprobantesPago.id_orden_pago;
                         } else {
                             this.mensaje("Error al momento de guardar el comprobante de pago", "red");
                         }
@@ -373,7 +373,7 @@ export default {
             if (this.comprobantesPago.id_tipo == '15') {
                 this.$http
                     .get(
-                        this.RMTURL + "contabilidad/comprobantesPago/polizasAgencia/agencia/8"
+                        this.redirectRMTApi + "contabilidad/comprobantesPago/polizasAgencia/agencia/8"
                     )
                     .then(
                         function (response) {
@@ -388,7 +388,7 @@ export default {
             }
         },
         comisionBancaria() {
-            this.$http.post(this.RMTURL + 'contabilidad/ordenPago/comisionbancaria', {
+            this.$http.post(this.redirectRMTApi + 'contabilidad/ordenPago/comisionbancaria', {
                 cuenta: this.comprobantesPago.id_cuenta,
                 plan: this.comprobantesPago.id_planpago
             }, {
@@ -418,7 +418,7 @@ export default {
                 this.isLoading = true;
                 this.$http
                     .get(
-                        "https://www.rutamayatravel.com/sur4/admin/produccionesVentas/busquedaAgencias?search=" +
+                        this.redirectRMTApi + "produccionesVentas/busquedaAgencias?search=" +
                         query, {
                             before(request) {
                                 // abort previous request, if exists
@@ -444,7 +444,7 @@ export default {
         },
         buscarAgenciaPagos() {
             this.loader = true;
-            this.$http.get(this.RMTURL + "contabilidad/ordenPago/searchAll?agencia=" + this.id_agencia).then(
+            this.$http.get(this.redirectRMTApi + "contabilidad/ordenPago/searchAll?agencia=" + this.id_agencia).then(
                 function (response) {
                     this.array_busqueda_agencia = response.body.search;
                     // console.log(Object.keys(this.array_busqueda_agencia.GruposBodas).length);
@@ -461,7 +461,7 @@ export default {
         },
         modal_habitaciones(modelo) {
             var id = this.formatearIdentificador(modelo.tipo, modelo.identificador);
-            this.$http.get(this.RMTURL + "contabilidad/ordenPago/obtenerCuartos?identificador=" + id).then(
+            this.$http.get(this.redirectRMTApi + "contabilidad/ordenPago/obtenerCuartos?identificador=" + id).then(
                 function (response) {
                     this.array_cuartos_busqueda = response.body.rows;
                     this.loaderHabitaciones = false;
@@ -473,7 +473,7 @@ export default {
         },
         consultaFormulario() {
             // if (this.apiForms.length == 0) {
-            this.$http.get(this.RMTURL + "contabilidad/ordenPago/consultaFormulario").then(
+            this.$http.get(this.redirectRMTApi + "contabilidad/ordenPago/consultaFormulario").then(
                 function (response) {
                     this.apiForms = response.body;
                     this.tasa_cambio = response.body.tasa_cambio;
@@ -751,27 +751,27 @@ export default {
                     case 'Reservacion':
                         id = identificador.replace('H', '');
                         title = 'Reservación';
-                        link = this.redirectRMT + this.sur4 + '/reservacion/view/id/' + id;
+                        link = this.redirectRMT + 'reservacion/view/id/' + id;
                         break;
                     case 'Actividad':
                         id = identificador.replace('A', '');
                         title = 'Actividad';
-                        link = this.redirectRMT + this.sur4 + '/activities/view/id/' + id;
+                        link = this.redirectRMT + 'activities/view/id/' + id;
                         break;
                     case 'Tour':
                         id = identificador.replace('T', '');
                         title = 'Tour';
-                        link = this.redirectRMT + this.sur4 + '/tourReservacion/view/id/' + id;
+                        link = this.redirectRMT + 'tourReservacion/view/id/' + id;
                         break;
                     case 'Grupo':
                         id = identificador.replace('G', '');
                         title = 'Grupo';
-                        link = this.redirectRMT + this.sur4 + '/bloqueos/view/id/' + id;
+                        link = this.redirectRMT + 'bloqueos/view/id/' + id;
                         break;
                     case 'Boda':
                         id = identificador.replace('B', '');
                         title = 'Boda';
-                        link = this.redirectRMT + this.sur4 + '/bloqueos/view/id/' + id;
+                        link = this.redirectRMT + 'bloqueos/view/id/' + id;
                         break;
                     case 'Abono-cuenta':
                         id = identificador.replace('C', '');
@@ -782,7 +782,7 @@ export default {
                         tipoBloqueo = tipoIdentificador.split('-');
                         var items = identificador.split("-");
                         title = 'Habitación-' + tipoBloqueo[1];
-                        link = this.redirectRMT + this.sur4 + '/bloqueos/view/id/' + items[0];
+                        link = this.redirectRMT + 'bloqueos/view/id/' + items[0];
                         break;
                 }
 
@@ -897,7 +897,7 @@ export default {
             this.isLoading = true
 
             // Lazily load input items
-            fetch("https://www.rutamayatravel.com/sur4/admin/agencias/busquedaAgencias?search=" + val)
+            fetch(this.redirectRMTApi + "agencias/busquedaAgencias?search=" + val)
                 .then(res => res.json())
                 .then(res => {
                     this.listaAgencias = res;
