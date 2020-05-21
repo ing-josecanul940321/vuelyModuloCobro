@@ -20,7 +20,7 @@
               <tr>
                 <td class="text-right">
                   <a
-                    :href="redirectRMT + sur4 + '/contabilidad/ordenPago/GeneratePdf/idOrden/' + props.item.id_orden_pago"
+                    :href="redirectRMT + 'contabilidad/ordenPago/GeneratePdf/idOrden/' + props.item.id_orden_pago"
                     target="_blank"
                   >{{ props.item.id_comprobante_pago }}</a>
                 </td>
@@ -43,7 +43,7 @@
                       <a
                         v-show="props.item.facturacion == true"
                         v-on="on"
-                        :href="redirectRMT + 'sur4test/facturacionCfdi/factura/idrecibo/' + props.item.id_comprobante_pago + '/tipo/comprobante'"
+                        :href="baseUrl + 'facturacionCfdi/factura/idrecibo/' + props.item.id_comprobante_pago + '/tipo/comprobante'"
                         target="_blank"
                         style="color:black; padding-right:5px;"
                       >
@@ -57,7 +57,7 @@
                       <template v-slot:activator="{ on }">
                         <a
                           v-on="on"
-                          :href="redirectRMT + 'sur4test/facturacionCfdi/factura/idrecibo/' + props.item.id_comprobante_pago + '/tipo/comprobante'"
+                          :href="baseUrl + 'facturacionCfdi/factura/idrecibo/' + props.item.id_comprobante_pago + '/tipo/comprobante'"
                           target="_blank"
                           style="color:black; padding-right:5px;"
                         >
@@ -237,7 +237,7 @@ export default {
       files: [],
       dropzoneOptions: {
         url:
-          "https://www.rutamayatravel.com/sur4dev/admin/contabilidad/comprobantesPago/subirArchivo",
+          this.redirectRMTApi + "contabilidad/comprobantesPago/subirArchivo",
         method: "POST",
         thumbnailWidth: 150,
         maxFilesize: 5,
@@ -261,9 +261,7 @@ export default {
       this.loader = true;
       this.$http
         .get(
-          "https://www.rutamayatravel.com/" +
-            this.sur4 +
-            "/contabilidad/comprobantesPago/obtenerComprobantesPago"
+          this.redirectRMTApi + "contabilidad/comprobantesPago/obtenerComprobantesPago"
         )
         .then(
           function(response) {
@@ -318,9 +316,7 @@ export default {
     getFiles() {
       this.$http
         .get(
-          "https://www.rutamayatravel.com/" +
-            this.sur4 +
-            "/contabilidad/comprobantesPago/getFiles/idPago/" +
+          this.redirectRMTApi + "contabilidad/comprobantesPago/getFiles/idPago/" +
             this.editItemComprobante.id_comprobante_pago
         )
         .then(
@@ -348,9 +344,7 @@ export default {
     deleteFile(item) {
       this.$http
         .post(
-          "https://www.rutamayatravel.com/" +
-            this.sur4 +
-            "/contabilidad/comprobantesPago/borrarArchivo",
+          this.redirectRMTApi + "contabilidad/comprobantesPago/borrarArchivo",
           { id: item.id },
           {
             emulateJSON: true

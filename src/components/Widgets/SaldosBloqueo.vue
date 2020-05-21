@@ -77,7 +77,7 @@ export default {
     getTablaSaldo() {
       this.$http
         .get(
-          "https://www.rutamayatravel.com/sur4dev/admin/contabilidad/ordenPago/bloqueoSaldo/idBloqueo/" +
+          this.redirectRMTApi + "contabilidad/ordenPago/bloqueoSaldo/idBloqueo/" +
             this.idBloqueo
         )
         .then(

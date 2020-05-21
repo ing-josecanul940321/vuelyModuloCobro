@@ -43,7 +43,7 @@ export default {
         loadAgencias() {
             this.loader = true;
             this.$http
-                .get("https://www.rutamayatravel.com/sur4/admin/apivue/infoAgencia/"+ this.id)
+                .get(this.redirectRMTApi + "apivue/infoAgencia/"+ this.id)
                 .then(
                     function (response) {
                         this.array_agencia = response.data;
@@ -60,7 +60,7 @@ export default {
         },
         loadListadoPaquetesAgencia() {
             this.$http
-                .get("//www.rutamayatravel.com/sur4/admin/apivue/listadoPaquetesAgencia/"+ this.id)
+                .get(this.redirectRMTApi + "apivue/listadoPaquetesAgencia/"+ this.id)
                 .then(
                     function (response) {
                         this.array_paquetes_agencia = response.data;
@@ -74,7 +74,7 @@ export default {
         loadlistaProimosPagosAgencia() {
             console.log(this.array_proximos_pagos);
             this.$http
-                .get("//www.rutamayatravel.com/sur4/admin/apivue/listadoProximosPagos/"+ this.id)
+                .get(this.redirectRMTApi + "apivue/listadoProximosPagos/"+ this.id)
                 .then(
                     function (response) {
                         this.array_proximos_pagos = response.data;

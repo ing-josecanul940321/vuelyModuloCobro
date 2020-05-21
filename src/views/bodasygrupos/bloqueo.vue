@@ -107,7 +107,7 @@ export default {
       this.loader = true;
       this.$http
         .get(
-          "https://www.rutamayatravel.com/sur4/admin/apivue/detalleBodaGrupo/" +
+          this.redirectRMTApi + "apivue/detalleBodaGrupo/" +
             this.id
         )
         .then(
@@ -117,7 +117,7 @@ export default {
             this.array_bloqueo = response.data;
             this.array_politicas = response.data.politicas[0];
 
-            console.log(this.array_bloqueo);
+            // console.log(this.array_bloqueo);
           },
           function() {
             console.log("Error");

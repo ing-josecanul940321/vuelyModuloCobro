@@ -386,12 +386,22 @@
           <v-skeleton-loader ref="skeleton" :type="'list-item-avatar-three-line'" class="mx-auto"></v-skeleton-loader>
         </div>
         <v-expansion-panels accordion v-show="loaderHabitaciones == false">
-          <v-expansion-panel v-for="(cuarto, index) in array_cuartos_busqueda" :key="'hab_'+index">
+          <v-expansion-panel
+            v-for="(cuarto, index) in array_cuartos_busqueda"
+            :key="'hab_'+index"
+            @click="calcularTotalBusqueda()"
+          >
             <v-expansion-panel-header>
-              <v-checkbox
+              <!-- <v-checkbox
                 v-model="modelo_habitaciones"
                 :value="cuarto"
                 @change="agregarHabAOrden(cuarto)"
+                class="pa-0"
+                :label="'Id:' + cuarto.identificador +' | ' +  'Hab. '+ cuarto.habitacion + ' | ' + 'Saldo: $ ' + $RMT.formatoPrecio(cuarto.saldo)"
+              ></v-checkbox> -->
+              <v-checkbox
+                v-model="precios"
+                :value="cuarto"
                 class="pa-0"
                 :label="'Id:' + cuarto.identificador +' | ' +  'Hab. '+ cuarto.habitacion + ' | ' + 'Saldo: $ ' + $RMT.formatoPrecio(cuarto.saldo)"
               ></v-checkbox>
@@ -402,7 +412,7 @@
               <h5>
                 <p>{{cuarto.fecha_inicial}} - {{cuarto.fecha_final}}</p>
               </h5>
-              <p>$ {{cuarto.descripcion}}</p>
+              <p>{{cuarto.descripcion}}</p>
             </v-expansion-panel-content>
           </v-expansion-panel>
         </v-expansion-panels>
