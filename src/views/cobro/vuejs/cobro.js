@@ -20,6 +20,7 @@ export default {
             dialog_confirmar_guardar: false,
             dialog_modal_pagos: false,
             modelo_habitaciones: [],
+            selected_grupo_cuartos: [],
             selected_agencia: "",
             listaAgencias: [],
             isLoading: false,
@@ -46,6 +47,7 @@ export default {
             timeout: 6000,
             x: null,
             y: 'top',
+            // ################
             mostrarBotonBusqueda: true,
             loaderHabitaciones: true,
             settings: [],
@@ -97,6 +99,7 @@ export default {
             saldores: 0.00,
             polizas_seleccionadas: [],
             apiForms: [],
+            cuentas: [],
             saldo_agencia: '$ 5,000.00',
             tasa_cambio: [],
             id_comprobante_pago: 0,
@@ -460,6 +463,7 @@ export default {
             );
         },
         modal_habitaciones(modelo) {
+            this.selected_grupo_cuartos = modelo;
             var id = this.formatearIdentificador(modelo.tipo, modelo.identificador);
             this.$http.get(this.redirectRMTApi + "contabilidad/ordenPago/obtenerCuartos?identificador=" + id).then(
                 function (response) {
@@ -476,6 +480,7 @@ export default {
             this.$http.get(this.redirectRMTApi + "contabilidad/ordenPago/consultaFormulario").then(
                 function (response) {
                     this.apiForms = response.body;
+                    this.cuentas = this.apiForms.cuentas;
                     this.tasa_cambio = response.body.tasa_cambio;
                 },
                 function () {
@@ -483,6 +488,35 @@ export default {
                 }
             );
             // }
+        },
+        buscaCuentaBanco(){
+            var banco = "banco=" + this.comprobantesPago.id_banco;
+            this.$http.get(this.redirectRMTApi + "contabilidad/ordenPago/buscaCuentaBanco?" + banco).then(
+                function (response) {
+                    var respuesta = response.body;
+                    if (respuesta.length > 0) {
+                        this.cuentas = response.body;
+                    }else{
+                        this.cuentas = this.apiForms.cuentas;
+                    }
+                },
+                function () {
+                    console.log("Error");
+                }
+            );
+        },
+        confirmarModalOrden(){
+            console.log(this.json_busqueda_prueba);
+            var articulos_ceros = this.json_busqueda_prueba.find(item => parseFloat(item.saldo) === 0);
+            console.log(articulos_ceros);
+            if (this.json_busqueda_prueba.length === 0) {
+                this.mensaje('Orden vacía.','warning');
+            }else if(typeof articulos_ceros != 'undefined' && Object.keys(articulos_ceros).length > 0){
+                this.mensaje('Uno de sus artículos tiene saldo en ceros','warning');
+            }
+            else{
+                this.dialog_confirmar_guardar = true;
+            }
         },
         autocompleteChange() {
             if (this.model_agencia_selected != null) {
@@ -613,18 +647,18 @@ export default {
             this.calcularTotalSaldo();
         },
         agregaCuenta() {
-            var hay_otros_articulos = false;
-            var searchAbono = this.json_busqueda_prueba.find(item => item.tipo_producto !== 'Abono-cuenta');
+            var hay_una_cuenta = false;
+            var searchAbono = this.json_busqueda_prueba.find(item => item.tipo_producto === 'Abono-cuenta');
             if (typeof searchAbono != 'undefined' && Object.keys(searchAbono).length > 0) {
-                hay_otros_articulos = true;
+                hay_una_cuenta = true;
             }
             if (this.model_agencia_selected != null) {
                 console.log(this.model_agencia_selected);
-                if (hay_otros_articulos == false) {
+                if (hay_una_cuenta == false) {
                     var that = this;
                     this.es_cuenta_fondo = true;
-                    this.disabledTextField = true;
-                    this.disabledBtnSearch = true;
+                    // this.disabledTextField = true;
+                    // this.disabledBtnSearch = true;
                     that.json_busqueda_prueba.push({
                         'identificador': '1030-' + this.id_agencia,
                         'saldo': 0.00,
@@ -637,7 +671,7 @@ export default {
                     this.mensaje('Agregar Saldo válido. No puede combinar una cuenta de fondo con otros artículos.', 'warning');
                     this.calcularTotalSaldo();
                 } else {
-                    this.mensaje('Hay artículos en su orden que no son abonos. No puede combinar abonos con otros artículos.', 'warning');
+                    this.mensaje('Hay una cuenta de fondo en su orden. Genera una nueva orden.', 'warning');
                 }
             } else {
                 this.mensaje('Elige una agencia para seguir.', 'warning');
@@ -853,6 +887,7 @@ export default {
             this.comprobantesPago.efectivo_facturable = '0';
             this.importe_comision = 0;
             this.itemPolizas = [];
+            this.cuentas = this.apiForms.cuentas;
             this.operacionesMath();
         },
         resetAll() {
@@ -890,12 +925,16 @@ export default {
                 );
                 // }
             });
+        },
+        cuartosGruposBodas(){
+            let count = 0;
+            console.log(this.precios);
+            return count; 
         }
     },
     watch: {
         search(val) {
             this.isLoading = true
-
             // Lazily load input items
             fetch(this.redirectRMTApi + "agencias/busquedaAgencias?search=" + val)
                 .then(res => res.json())

@@ -78,7 +78,13 @@
             </v-col>
           </v-row>
         </v-container>
-        <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition" persistent>
+        <v-dialog
+          v-model="dialog"
+          fullscreen
+          hide-overlay
+          transition="dialog-bottom-transition"
+          persistent
+        >
           <v-card>
             <v-toolbar dark color="pink">
               <v-toolbar-title>{{nombre_agencia}} - ID: {{id_agencia}}</v-toolbar-title>
@@ -109,143 +115,147 @@
                 >Agregar al pago</v-btn>
               </p>
             </v-container>
-            <v-container v-if="cont_reservas>2">
+            <v-container v-show="loader == true">
+              <!-- Loaders -->
               <h2>RESERVAS</h2>
-              <v-sheet color="grey" class="pa-0" v-show="loader == true">
-                <v-skeleton-loader class="mx-auto" max-width="auto" type="table" tile></v-skeleton-loader>
-              </v-sheet>
-              <v-simple-table :fixed-header="true" height="200" v-show="loader == false">
-                <template v-slot:default>
-                  <thead>
-                    <tr>
-                      <th class="text-left">IDENTIFICADOR</th>
-                      <th class="text-left">SALDO</th>
-                      <th class="text-left">IMPORTE</th>
-                      <th class="text-left">TIPO</th>
-                      <th class="text-left">DESCRIPCION</th>
-                      <th class="text-left"></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr
-                      v-for="(data,index) in array_busqueda_agencia.Reservas"
-                      :key="index"
-                      @click="calcularTotalBusqueda()"
-                      v-show="index !== 'importeTotal' && index !== 'saldoTotal'"
-                    >
-                      <td>
-                        <a
-                          :href="tipoIdentificador(data.tipo,data.identificador,'link')"
-                          target="_blank"
-                        >{{ data.identificador }}</a>
-                      </td>
-                      <td style="white-space:nowrap;">$ {{$RMT.formatoPrecio(data.saldo)}}</td>
-                      <td>$ {{$RMT.formatoPrecio(data.importe)}}</td>
-                      <td>{{data.tipo}}</td>
-                      <td>{{data.descripcion}}</td>
-                      <td>
-                        <v-checkbox v-model="precios" :value="data"></v-checkbox>
-                      </td>
-                    </tr>
-                  </tbody>
-                </template>
-              </v-simple-table>
-            </v-container>
-            <v-container v-if="cont_grupoboda>2">
+              <v-skeleton-loader class="mx-auto" max-width="auto" type="table" :tile="false"></v-skeleton-loader>
               <h2>GRUPOS Y BODAS</h2>
-
-              <v-sheet color="grey" class="pa-0" v-show="loader == true">
-                <v-skeleton-loader class="mx-auto" max-width="auto" type="table" :tile="false"></v-skeleton-loader>
-              </v-sheet>
-              <v-simple-table :fixed-header="true" height="200" v-show="loader == false">
-                <template v-slot:default>
-                  <thead>
-                    <tr>
-                      <th class="text-left">IDENTIFICADOR</th>
-                      <th class="text-left">SALDO</th>
-                      <th class="text-left">IMPORTE</th>
-                      <th class="text-left">TIPO</th>
-                      <th class="text-left">DESCRIPCION</th>
-                      <th class="text-left"></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr
-                      v-for="(data,index) in array_busqueda_agencia.GruposBodas"
-                      :key="index"
-                      @click="calcularTotalBusqueda()"
-                      v-show="index !== 'importeTotal' && index !== 'saldoTotal'"
-                    >
-                      <td>
-                        <a
-                          :href="tipoIdentificador(data.tipo,data.identificador,'link')"
-                          target="_blank"
-                        >{{ data.identificador }}</a>
-                      </td>
-                      <td>$ {{$RMT.formatoPrecio(data.saldo)}}</td>
-                      <td>$ {{$RMT.formatoPrecio(data.importe)}}</td>
-                      <td>{{data.tipo}}</td>
-                      <td>{{data.descripcion}}</td>
-                      <td>
-                        <div class="d-flex">
-                          <v-checkbox v-model="precios" :value="data"></v-checkbox>
-                          <v-btn
-                            icon
-                            light
-                            class="mt-4"
-                            @click="dialog_habitaciones = true; modal_habitaciones(data); modelo_habitaciones = []; array_cuartos_busqueda = []; loaderHabitaciones = true;"
-                          >
-                            <v-icon class="ma-0">mdi-open-in-new</v-icon>
-                          </v-btn>
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </template>
-              </v-simple-table>
-            </v-container>
-            <v-container v-if="cont_bloqueos>2">
+              <v-skeleton-loader class="mx-auto" max-width="auto" type="table" :tile="false"></v-skeleton-loader>
               <h2>BLOQUEOS</h2>
-
-              <v-sheet color="grey" class="pa-0" v-show="loader == true">
-                <v-skeleton-loader class="mx-auto" max-width="auto" type="table" :tile="false"></v-skeleton-loader>
-              </v-sheet>
-              <v-simple-table :fixed-header="true" height="200" v-show="loader == false">
-                <template v-slot:default>
-                  <thead>
-                    <tr>
-                      <th class="text-left">IDENTIFICADOR</th>
-                      <th class="text-left">SALDO</th>
-                      <th class="text-left">IMPORTE</th>
-                      <th class="text-left">TIPO</th>
-                      <th class="text-left">DESCRIPCION</th>
-                      <th class="text-left"></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr
-                      v-for="(data,index) in array_busqueda_agencia.Bloqueos"
-                      :key="index"
-                      @click="calcularTotalBusqueda()"
-                      v-show="index !== 'importeTotal' && index !== 'saldoTotal'"
-                    >
-                      <td>
-                        <a
-                          :href="tipoIdentificador(data.tipo,data.identificador,'link')"
-                          target="_blank"
-                        >{{ data.identificador }}</a>
-                      </td>
-                      <td>$ {{$RMT.formatoPrecio(data.saldo)}}</td>
-                      <td>$ {{$RMT.formatoPrecio(data.importe)}}</td>
-                      <td>{{data.tipo}}</td>
-                      <td>{{data.descripcion}}</td>
-                      <td>
-                        <v-checkbox v-model="precios" :value="data"></v-checkbox>
-                      </td>
-                    </tr>
-                  </tbody>
-                </template>
-              </v-simple-table>
+              <v-skeleton-loader class="mx-auto" max-width="auto" type="table" :tile="false"></v-skeleton-loader>
+              <!-- <v-sheet color="grey" class="pa-0">
+              </v-sheet>-->
+            </v-container>
+            <v-container v-show="loader == false">
+              <v-row>
+                <v-col md="12" v-if="cont_reservas > 2">
+                  <h2>RESERVAS</h2>
+                  <v-simple-table :fixed-header="true" height="200">
+                    <template v-slot:default>
+                      <thead>
+                        <tr>
+                          <th class="text-left">IDENTIFICADOR</th>
+                          <th class="text-left">SALDO</th>
+                          <th class="text-left">IMPORTE</th>
+                          <th class="text-left">TIPO</th>
+                          <th class="text-left">DESCRIPCION</th>
+                          <th class="text-left"></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr
+                          v-for="(data,index) in array_busqueda_agencia.Reservas"
+                          :key="index"
+                          @click="calcularTotalBusqueda()"
+                          v-show="index !== 'importeTotal' && index !== 'saldoTotal'"
+                        >
+                          <td>
+                            <a
+                              :href="tipoIdentificador(data.tipo,data.identificador,'link')"
+                              target="_blank"
+                            >{{ data.identificador }}</a>
+                          </td>
+                          <td style="white-space:nowrap;">$ {{$RMT.formatoPrecio(data.saldo)}}</td>
+                          <td>$ {{$RMT.formatoPrecio(data.importe)}}</td>
+                          <td>{{data.tipo}}</td>
+                          <td>{{data.descripcion}}</td>
+                          <td>
+                            <v-checkbox v-model="precios" :value="data"></v-checkbox>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </template>
+                  </v-simple-table>
+                </v-col>
+                <v-col md="12" v-if="cont_grupoboda > 2">
+                  <h2>GRUPOS Y BODAS</h2>
+                  <v-simple-table :fixed-header="true" height="200">
+                    <template v-slot:default>
+                      <thead>
+                        <tr>
+                          <th class="text-left">IDENTIFICADOR</th>
+                          <th class="text-left">SALDO</th>
+                          <th class="text-left">IMPORTE</th>
+                          <th class="text-left">TIPO</th>
+                          <th class="text-left">DESCRIPCION</th>
+                          <th class="text-left"></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr
+                          v-for="(data,index) in array_busqueda_agencia.GruposBodas"
+                          :key="index"
+                          @click="calcularTotalBusqueda()"
+                          v-show="index !== 'importeTotal' && index !== 'saldoTotal'"
+                        >
+                          <td>
+                            <a
+                              :href="tipoIdentificador(data.tipo,data.identificador,'link')"
+                              target="_blank"
+                            >{{ data.identificador }}</a>
+                          </td>
+                          <td>$ {{$RMT.formatoPrecio(data.saldo)}}</td>
+                          <td>$ {{$RMT.formatoPrecio(data.importe)}}</td>
+                          <td>{{data.tipo}}</td>
+                          <td>{{data.descripcion}}</td>
+                          <td>
+                            <div class="d-flex">
+                              <v-checkbox v-model="precios" :value="data"></v-checkbox>
+                              <v-btn
+                                icon
+                                light
+                                class="mt-4"
+                                @click="dialog_habitaciones = true; modal_habitaciones(data); modelo_habitaciones = []; array_cuartos_busqueda = []; loaderHabitaciones = true;"
+                              >
+                                <v-icon class="ma-0">mdi-open-in-new</v-icon>
+                              </v-btn>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </template>
+                  </v-simple-table>
+                </v-col>
+                <v-col md="12" v-if="cont_bloqueos > 2">
+                  <h2>BLOQUEOS</h2>
+                  <v-simple-table :fixed-header="true" height="200">
+                    <template v-slot:default>
+                      <thead>
+                        <tr>
+                          <th class="text-left">IDENTIFICADOR</th>
+                          <th class="text-left">SALDO</th>
+                          <th class="text-left">IMPORTE</th>
+                          <th class="text-left">TIPO</th>
+                          <th class="text-left">DESCRIPCION</th>
+                          <th class="text-left"></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr
+                          v-for="(data,index) in array_busqueda_agencia.Bloqueos"
+                          :key="index"
+                          @click="calcularTotalBusqueda()"
+                          v-show="index !== 'importeTotal' && index !== 'saldoTotal'"
+                        >
+                          <td>
+                            <a
+                              :href="tipoIdentificador(data.tipo,data.identificador,'link')"
+                              target="_blank"
+                            >{{ data.identificador }}</a>
+                          </td>
+                          <td>$ {{$RMT.formatoPrecio(data.saldo)}}</td>
+                          <td>$ {{$RMT.formatoPrecio(data.importe)}}</td>
+                          <td>{{data.tipo}}</td>
+                          <td>{{data.descripcion}}</td>
+                          <td>
+                            <v-checkbox v-model="precios" :value="data"></v-checkbox>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </template>
+                  </v-simple-table>
+                </v-col>
+              </v-row>
             </v-container>
           </v-card>
         </v-dialog>
@@ -342,14 +352,14 @@
           </v-col>
           <v-col cols="6" md="6"></v-col>
           <v-col cols="2" md="2" class="text-center">
-            <v-btn color="green" block dark @click="dialog_confirmar_guardar= true; ">Guardar</v-btn>
+            <v-btn color="green" block dark @click="confirmarModalOrden(); ">Guardar</v-btn>
           </v-col>
           <v-col cols="2" md="2" class="text-center">
             <v-btn
               color="green"
               block
               dark
-              @click="dialog_confirmar_guardar= true; agencia_pagar_orden = true;"
+              @click="confirmarModalOrden(); agencia_pagar_orden = true;"
             >Guardar y Pagar</v-btn>
           </v-col>
           <!-- <v-col>
@@ -380,8 +390,9 @@
     <v-dialog v-model="dialog_habitaciones" max-width="500px">
       <v-card>
         <v-card-title>Lista de Cuartos</v-card-title>
-        <p class="pl-6">Has seleccionado: {{modelo_habitaciones.length}}</p>
-        {{modelo_habitaciones.identificador}}
+        <p class="pl-6">{{selected_grupo_cuartos.tipo}}: {{ selected_grupo_cuartos.identificador }}</p>
+        <!-- <p class="pl-6">Has seleccionado: {{ cuartosGruposBodas }}</p>
+        {{modelo_habitaciones.identificador}} -->
         <div v-for="(data,i) in 5" :key="i" v-show="loaderHabitaciones == true">
           <v-skeleton-loader ref="skeleton" :type="'list-item-avatar-three-line'" class="mx-auto"></v-skeleton-loader>
         </div>
@@ -398,7 +409,7 @@
                 @change="agregarHabAOrden(cuarto)"
                 class="pa-0"
                 :label="'Id:' + cuarto.identificador +' | ' +  'Hab. '+ cuarto.habitacion + ' | ' + 'Saldo: $ ' + $RMT.formatoPrecio(cuarto.saldo)"
-              ></v-checkbox> -->
+              ></v-checkbox>-->
               <v-checkbox
                 v-model="precios"
                 :value="cuarto"
@@ -554,6 +565,7 @@
                   item-text="nombre"
                   label="Banco"
                   :rules="(comprobantesPago.id_tipo == 8 || comprobantesPago.id_tipo == 9) ? bancoRules : []"
+                  @change="buscaCuentaBanco()"
                 ></v-select>
               </v-col>
               <v-col
@@ -573,10 +585,11 @@
               >
                 <v-select
                   v-model="comprobantesPago.id_cuenta"
-                  :items="apiForms.cuentas"
+                  :items="cuentas"
                   item-value="id_cuenta"
                   item-text="descripcion"
                   label="Cuenta"
+                  no-data-text="No se encontró cuentas para el banco seleccionado"
                   @change="comisionBancaria()"
                   :rules="(comprobantesPago.id_tipo == 8 || comprobantesPago.id_tipo == 9) ? bancoRules : []"
                 ></v-select>
