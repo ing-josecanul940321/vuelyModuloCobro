@@ -214,7 +214,10 @@
           <v-card>
             <v-card-title class="headline">{{mensaje_confirmacion_title}}</v-card-title>
             <v-card-text v-show="showMotivo">
-              <v-text-field v-model="editItemOrden.motivo_cancelacion" label="Motivo de Cancelación"></v-text-field>
+              <v-text-field
+                v-model="editItemOrden.motivo_cancelacion"
+                label="Motivo de Cancelación"
+              ></v-text-field>
             </v-card-text>
             <v-card-text v-html="mensaje_confirmacion_body"></v-card-text>
 
@@ -328,7 +331,7 @@
               </v-col>
               <v-col cols="12" md="6" v-show="comprobantesPago.id_tipo == '15'">
                 <v-text-field
-                  v-model="itemPolizas.importe"
+                  v-model="itemPolizas.fondo"
                   label="Cuenta de Fondo"
                   prefix="$"
                   filled
@@ -401,6 +404,7 @@
                       ? bancoRules
                       : []
                   "
+                  @change="buscaCuentaBanco()"
                 ></v-select>
               </v-col>
               <v-col
@@ -437,10 +441,11 @@
               >
                 <v-select
                   v-model="comprobantesPago.id_cuenta"
-                  :items="apiForms.cuentas"
+                  :items="cuentas"
                   item-value="id_cuenta"
                   item-text="descripcion"
                   label="Cuenta"
+                  no-data-text="No se encontró cuentas para el banco seleccionado"
                   @change="comisionBancaria()"
                   :rules="
                     comprobantesPago.id_tipo == 8 ||
@@ -719,6 +724,7 @@ export default {
         }
       ],
       apiForms: [],
+      cuentas: [],
       tasa_cambio: [],
       es_cuenta_fondo: false,
       dialog_confirmacion_pago: false,
@@ -738,8 +744,7 @@ export default {
       y: "top",
       // upload image
       dropzoneOptions: {
-        url:
-          this.redirectRMTApi + "contabilidad/comprobantesPago/subirArchivo",
+        url: this.redirectRMTApi + "contabilidad/comprobantesPago/subirArchivo",
         method: "POST",
         thumbnailWidth: 150,
         maxFilesize: 5,
@@ -761,10 +766,7 @@ export default {
     loadOrdenes() {
       this.loader = true;
       this.$http
-        .get(
-          this.redirectRMTApi +
-            "contabilidad/ordenPago/obtenerOrdenesPago"
-        )
+        .get(this.redirectRMTApi + "contabilidad/ordenPago/obtenerOrdenesPago")
         .then(
           function(response) {
             this.array_ordenes = response.data;
@@ -910,8 +912,12 @@ export default {
     actualizarItem() {
       var agregaCuenta = false;
       console.log(this.editItemOrden.importe_total);
-      
-      if (parseFloat(parseFloat(this.saldo_actual) > this.editItemOrden.importe_total)) {
+
+      if (
+        parseFloat(
+          parseFloat(this.saldo_actual) > this.editItemOrden.importe_total
+        )
+      ) {
         agregaCuenta = true;
       }
       var data = {
@@ -919,13 +925,12 @@ export default {
           OrdenPago: this.editItemOrden,
           OrdenPagoDetalles: this.array_detalles
         },
-        agregaCuenta: agregaCuenta,
+        agregaCuenta: agregaCuenta
       };
       console.log(data);
       this.$http
         .post(
-          this.redirectRMTApi +
-            "contabilidad/ordenPago/crearOrdenPago",
+          this.redirectRMTApi + "contabilidad/ordenPago/crearOrdenPago",
           data,
           {
             emulateJSON: true
@@ -961,7 +966,6 @@ export default {
       this.editItemOrden = Object.assign({}, item);
       this.saldo_actual = this.editItemOrden.importe_total;
       console.log(this.saldo_actual);
-      
     },
     deleteItemTablaDetalles() {
       const index = this.array_detalles.indexOf(this.itemEliminar);
@@ -1031,7 +1035,8 @@ export default {
           };
           this.$http
             .post(
-              this.redirectRMTApi + "contabilidad/comprobantesPago/generarComprobantePago",
+              this.redirectRMTApi +
+                "contabilidad/comprobantesPago/generarComprobantePago",
               comprobante,
               {
                 emulateJSON: true
@@ -1065,6 +1070,8 @@ export default {
                   } else {
                     this.comprobantesPago.importe = comprobante.saldores;
                   }
+                  // console.log('ultimo importe: ' + this.ultimo_importe_pagado);
+                  // console.log('saldores: ' + comprobante.saldores);
                   this.total_pago = this.comprobantesPago.importe;
                   this.cambiarSaldoADolares();
                   this.resetCampos();
@@ -1073,6 +1080,7 @@ export default {
                   if (this.comprobantesPago.importe <= 0) {
                     this.ultimo_comprobante_pago = [];
                     this.ultimo_importe_pagado = 0;
+                    this.dialog_pagar = false;
                   }
 
                   this.updateTablaOrdenPago(response.body.orden);
@@ -1080,7 +1088,8 @@ export default {
                   this.estatus_pago = "success";
                   this.alert_mensaje = "Pago realizado con éxito.";
                   this.redirect_pdf_comprobante =
-                    this.redirectRMT + "contabilidad/ordenPago/GeneratePdf/idOrden/" +
+                    this.redirectRMT +
+                    "contabilidad/ordenPago/GeneratePdf/idOrden/" +
                     this.comprobantesPago.id_orden_pago;
                 } else {
                   this.mensaje(
@@ -1101,12 +1110,11 @@ export default {
     },
     consultaFormulario() {
       this.$http
-        .get(
-          this.redirectRMTApi + "contabilidad/ordenPago/consultaFormulario"
-        )
+        .get(this.redirectRMTApi + "contabilidad/ordenPago/consultaFormulario")
         .then(
           function(response) {
             this.apiForms = response.body;
+            this.cuentas = this.apiForms.cuentas;
             this.tasa_cambio = response.body.tasa_cambio;
           },
           function() {
@@ -1118,12 +1126,16 @@ export default {
       if (this.comprobantesPago.id_tipo == "15") {
         this.$http
           .get(
-            this.redirectRMTApi + "contabilidad/comprobantesPago/polizasAgencia/agencia/8"
+            this.redirectRMTApi +
+              "contabilidad/comprobantesPago/polizasAgencia/agencia/8"
           )
           .then(
             function(response) {
               this.itemPolizas = response.data;
-              this.comprobantesPago.importe = this.itemPolizas.importe;
+              this.itemPolizas.fondo = parseFloat(this.itemPolizas.fondo) * -1;
+              this.comprobantesPago.importe = parseFloat(
+                this.itemPolizas.fondo
+              );
               this.operacionesMath();
             },
             function() {
@@ -1167,6 +1179,22 @@ export default {
           }
         );
     },
+    buscaCuentaBanco() {
+            var banco = "banco=" + this.comprobantesPago.id_banco;
+            this.$http.get(this.redirectRMTApi + "contabilidad/ordenPago/buscaCuentaBanco?" + banco).then(
+                function (response) {
+                    var respuesta = response.body;
+                    if (respuesta.length > 0) {
+                        this.cuentas = response.body;
+                    } else {
+                        this.cuentas = this.apiForms.cuentas;
+                    }
+                },
+                function () {
+                    console.log("Error");
+                }
+            );
+        },
     cambiarSaldoADolares() {
       var saldo_usd =
         parseFloat(this.saldoOrden) / parseFloat(this.tasa_cambio.importe);
@@ -1253,7 +1281,10 @@ export default {
       }
     },
     resetCampos() {
-      if (this.comprobantesPago.id_tipo == "15") {
+      // if (this.comprobantesPago.id_tipo !== "15" && this.ultimo_importe_pagado > 0) {
+      //   this.comprobantesPago.importe = this.saldoOrden;
+      // }
+      if (this.comprobantesPago.id_tipo !== "15" && this.comprobantesPago.importe > 0) {
         this.comprobantesPago.importe = this.saldoOrden;
       }
       this.comprobantesPago.cliente = "";
@@ -1267,6 +1298,7 @@ export default {
       this.comprobantesPago.efectivo_facturable = "0";
       this.importe_comision = 0;
       this.itemPolizas = [];
+      this.cuentas = this.apiForms.cuentas;
       this.operacionesMath();
     },
     mensaje(texto, color) {
