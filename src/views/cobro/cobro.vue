@@ -516,7 +516,7 @@
               </v-col>
               <v-col cols="12" md="6" v-show="comprobantesPago.id_tipo == '15'">
                 <v-text-field
-                  v-model="itemPolizas.importe"
+                  v-model="itemPolizas.fondo"
                   label="Cuenta de Fondo"
                   prefix="$"
                   filled

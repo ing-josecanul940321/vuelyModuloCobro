@@ -376,12 +376,13 @@ export default {
             if (this.comprobantesPago.id_tipo == '15') {
                 this.$http
                     .get(
-                        this.redirectRMTApi + "contabilidad/comprobantesPago/polizasAgencia/agencia/8"
+                        this.redirectRMTApi + "contabilidad/comprobantesPago/polizasAgencia/agencia/" + this.model_agencia_selected.id_agencia
                     )
                     .then(
                         function (response) {
                             this.itemPolizas = response.data;
-                            this.comprobantesPago.importe = this.itemPolizas.importe;
+                            this.itemPolizas.fondo = parseFloat(this.itemPolizas.fondo) * (-1);
+                            this.comprobantesPago.importe = parseFloat(this.itemPolizas.fondo);
                             this.operacionesMath();
                         },
                         function () {
@@ -489,14 +490,14 @@ export default {
             );
             // }
         },
-        buscaCuentaBanco(){
+        buscaCuentaBanco() {
             var banco = "banco=" + this.comprobantesPago.id_banco;
             this.$http.get(this.redirectRMTApi + "contabilidad/ordenPago/buscaCuentaBanco?" + banco).then(
                 function (response) {
                     var respuesta = response.body;
                     if (respuesta.length > 0) {
                         this.cuentas = response.body;
-                    }else{
+                    } else {
                         this.cuentas = this.apiForms.cuentas;
                     }
                 },
@@ -505,16 +506,15 @@ export default {
                 }
             );
         },
-        confirmarModalOrden(){
+        confirmarModalOrden() {
             console.log(this.json_busqueda_prueba);
             var articulos_ceros = this.json_busqueda_prueba.find(item => parseFloat(item.saldo) === 0);
             console.log(articulos_ceros);
             if (this.json_busqueda_prueba.length === 0) {
-                this.mensaje('Orden vacía.','warning');
-            }else if(typeof articulos_ceros != 'undefined' && Object.keys(articulos_ceros).length > 0){
-                this.mensaje('Uno de sus artículos tiene saldo en ceros','warning');
-            }
-            else{
+                this.mensaje('Orden vacía.', 'warning');
+            } else if (typeof articulos_ceros != 'undefined' && Object.keys(articulos_ceros).length > 0) {
+                this.mensaje('Uno de sus artículos tiene saldo en ceros', 'warning');
+            } else {
                 this.dialog_confirmar_guardar = true;
             }
         },
@@ -873,7 +873,7 @@ export default {
             this.es_cuenta_fondo = false;
         },
         resetCampos() {
-            if (this.comprobantesPago.id_tipo == '15') {
+            if (this.comprobantesPago.id_tipo !== "15" && this.comprobantesPago.importe > 0) {
                 this.comprobantesPago.importe = this.total_saldo;
             }
             this.comprobantesPago.cliente = '';
@@ -926,10 +926,10 @@ export default {
                 // }
             });
         },
-        cuartosGruposBodas(){
+        cuartosGruposBodas() {
             let count = 0;
             console.log(this.precios);
-            return count; 
+            return count;
         }
     },
     watch: {
