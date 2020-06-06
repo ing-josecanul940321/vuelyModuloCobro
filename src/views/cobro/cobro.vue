@@ -8,14 +8,50 @@
       <v-card>
         <v-container class="pl-5 pr-5 py-0">
           <v-row>
-            <v-col cols="12" md="8">
-              <h2 class="py-5 px-5">MODULO DE COBRO</h2>
+            <v-col cols="12" md="4" style="padding-bottom:0px;">
+              <h2 class="py-5 px-5">MODULO DE {{tituloModulo}}</h2>
             </v-col>
-            <v-col cols="12" md="4">
+            <v-col cols="12" md="4" style="padding-bottom:0px;">
+              <v-radio-group v-model="tipo_modulo" row @change="cambioModulo();">
+                <v-radio label="Cobrar" color="success" value="0"></v-radio>
+                <v-radio label="Pagar" color="success" value="1"></v-radio>
+              </v-radio-group>
+            </v-col>
+            <v-col cols="12" md="4" style="padding-bottom:0px;">
               <tasa-cambio v-model="tasa_cambio.importe" v-on:success-change="modificarTipoCambio"></tasa-cambio>
             </v-col>
+            <v-col
+              cols="12"
+              v-show="tipo_modulo == '1'"
+              style="padding-top:0px; padding-bottom:0px;"
+            >
+              <v-radio-group v-model="pagar_a" row @change="cambioPagarA();">
+                <v-radio label="Agencia" color="primary" value="agencia"></v-radio>
+                <v-radio label="Hotel" color="primary" value="hotel"></v-radio>
+              </v-radio-group>
+            </v-col>
             <v-col cols="10" md="5">
-              <v-autocomplete
+              <auto-complete
+                v-show="pagar_a == 'agencia'"
+                v-model="model_lista_agencias"
+                :isLoading="isLoading"
+                :lista="listaSelectAgencias"
+                v-on:change-search="searchAutocomplete"
+                :tituloBusqueda="'BUSCAR AGENCIA'"
+                v-on:click-autocomplete="clickAutoComplete"
+                v-on:change-autocomplete="autocompleteChange"
+              ></auto-complete>
+              <auto-complete
+                v-show="pagar_a == 'hotel'"
+                v-model="model_lista_hoteles"
+                :isLoading="isLoading"
+                :lista="listaSelectHoteles"
+                v-on:change-search="searchAutocomplete"
+                :tituloBusqueda="'BUSCAR HOTEL'"
+                v-on:click-autocomplete="clickAutoComplete"
+                v-on:change-autocomplete="autocompleteChange"
+              ></auto-complete>
+              <!-- <v-autocomplete
                 v-model="model_agencia_selected"
                 :items="listaAgencias"
                 :loading="isLoading"
@@ -24,7 +60,7 @@
                 hide-selected
                 item-text="nombre_agencia"
                 item-value="id_agencia"
-                label="BUSCAR AGENCIA"
+                :label="tituloBusqueda"
                 hint="ESCRIBA MAS DE 3 LETRAS..."
                 no-data-text="ESCRIBA MAS DE 3 LETRAS..."
                 return-object
@@ -42,16 +78,23 @@
                     </v-list-item-content>
                   </template>
                 </template>
-              </v-autocomplete>
+              </v-autocomplete>-->
             </v-col>
             <v-col cols="2" md="2">
               <v-tooltip top>
                 <template v-slot:activator="{ on }">
-                  <v-btn class="mt-4 mr-1" dark color="teal" @click="agregaCuenta();" v-on="on">
+                  <v-btn
+                    v-show="pagar_a == 'agencia'"
+                    class="mt-4 mr-1"
+                    dark
+                    color="teal"
+                    @click="agregaCuenta();"
+                    v-on="on"
+                  >
                     <v-icon>attach_money</v-icon>
                   </v-btn>
                 </template>
-                <span>Agregar fondo a la Agencia seleccionada.</span>
+                <span>Fondo de la Agencia seleccionada.</span>
               </v-tooltip>
               <v-btn
                 color="primary"
@@ -77,6 +120,9 @@
               <!-- <div v-html="msjError" style="font-size:12px; color:red;" class="py-0"></div> -->
             </v-col>
           </v-row>
+          <!-- <v-row>
+            <pre>{{ this.json_busqueda_prueba || json }}</pre>
+          </v-row>-->
         </v-container>
         <v-dialog
           v-model="dialog"
@@ -87,7 +133,8 @@
         >
           <v-card>
             <v-toolbar dark color="pink">
-              <v-toolbar-title>{{nombre_agencia}} - ID: {{id_agencia}}</v-toolbar-title>
+              <v-toolbar-title v-show="pagar_a == 'agencia'">{{nombre_agencia}} - ID: {{id_agencia}}</v-toolbar-title>
+              <v-toolbar-title v-show="pagar_a == 'hotel'">{{nombre_hotel}} - ID: {{id_hotel}}</v-toolbar-title>
               <v-spacer></v-spacer>
               <v-toolbar-items>
                 <v-btn
@@ -119,7 +166,7 @@
               <!-- Loaders -->
               <h2>RESERVAS</h2>
               <v-skeleton-loader class="mx-auto" max-width="auto" type="table" :tile="false"></v-skeleton-loader>
-              <h2>GRUPOS Y BODAS</h2>
+              <h2>{{ pagar_a == 'agencia' ? 'GRUPOS Y BODAS' : 'GRUPOS, BODAS Y BLOQUEOS' }}</h2>
               <v-skeleton-loader class="mx-auto" max-width="auto" type="table" :tile="false"></v-skeleton-loader>
               <h2>BLOQUEOS</h2>
               <v-skeleton-loader class="mx-auto" max-width="auto" type="table" :tile="false"></v-skeleton-loader>
@@ -168,7 +215,7 @@
                   </v-simple-table>
                 </v-col>
                 <v-col md="12" v-if="cont_grupoboda > 2">
-                  <h2>GRUPOS Y BODAS</h2>
+                  <h2>{{ pagar_a == 'agencia' ? 'GRUPOS Y BODAS' : 'GRUPOS, BODAS Y BLOQUEOS' }}</h2>
                   <v-simple-table :fixed-header="true" height="200">
                     <template v-slot:default>
                       <thead>
@@ -202,6 +249,7 @@
                             <div class="d-flex">
                               <v-checkbox v-model="precios" :value="data"></v-checkbox>
                               <v-btn
+                                v-show="pagar_a == 'agencia'"
                                 icon
                                 light
                                 class="mt-4"
@@ -284,11 +332,27 @@
                         v-on="on"
                       >{{ data.identificador }}</a>
                     </template>
-                    <span v-if="data.agencia != ''">Agencia: {{data.agencia}}</span>
-                    <span v-else>Agencia: Indefinido</span>
+                    <span v-if="data.agencia">
+                      <h4 v-if="data.agencia != ''">Agencia: {{data.agencia}}</h4>
+                      <h4 v-else>Agencia: Indefinido</h4>
+                    </span>
+                    <span v-if="data.hotel">
+                      <h4 v-if="data.hotel != ''">Hotel: {{data.hotel}}</h4>
+                      <h4 v-else>Hotel: Indefinido</h4>
+                    </span>
                   </v-tooltip>
                 </td>
-                <td>{{ data.descripcion }}</td>
+                <td v-if="pagar_a == 'agencia' && tipo_modulo == '1'">
+                  <div v-show="!showingEdit" @click="showingEdit = true;">{{data.descripcion}}</div>
+                  <div v-show="showingEdit">
+                    <v-text-field
+                      v-model.lazy="data.descripcion"
+                      @keyup.enter="showingEdit = false; $emit('update');"
+                      autofocus
+                    />
+                  </div>
+                </td>
+                <td v-else>{{data.descripcion}}</td>
                 <td
                   style="width: 200px !important; text-align:right !important"
                   v-show="!switchInput"
@@ -304,6 +368,7 @@
                     @keypress="isNumber($event);"
                     @change="pruebaGetInfoInputMain(index);"
                     suffix="MX"
+                    autofocus
                   />
                 </td>
                 <td class="text-right" style="width: 200px !important;">
@@ -392,7 +457,7 @@
         <v-card-title>Lista de Cuartos</v-card-title>
         <p class="pl-6">{{selected_grupo_cuartos.tipo}}: {{ selected_grupo_cuartos.identificador }}</p>
         <!-- <p class="pl-6">Has seleccionado: {{ cuartosGruposBodas }}</p>
-        {{modelo_habitaciones.identificador}} -->
+        {{modelo_habitaciones.identificador}}-->
         <div v-for="(data,i) in 5" :key="i" v-show="loaderHabitaciones == true">
           <v-skeleton-loader ref="skeleton" :type="'list-item-avatar-three-line'" class="mx-auto"></v-skeleton-loader>
         </div>
@@ -574,9 +639,10 @@
                 v-show="comprobantesPago.id_tipo == '2' || comprobantesPago.id_tipo == '6' || comprobantesPago.id_tipo == '7' || comprobantesPago.id_tipo == '8' || comprobantesPago.id_tipo == '9'"
               >
                 <v-text-field
+                  :disabled="pagar_a == 'hotel'"
                   v-model="comprobantesPago.tarjeta"
                   label="4 Dígitos"
-                  :rules="(comprobantesPago.id_tipo == 8 || comprobantesPago.id_tipo == 9) ? bancoRules : []"
+                  :rules="((comprobantesPago.id_tipo == 8 || comprobantesPago.id_tipo == 9) && pagar_a == 'agencia') ? digitosBancoRules : []"
                 ></v-text-field>
               </v-col>
               <v-col
@@ -599,13 +665,14 @@
                 v-show="comprobantesPago.id_tipo == '8' || comprobantesPago.id_tipo == '9'"
               >
                 <v-select
+                  :disabled=" pagar_a == 'hotel' "
                   v-model="comprobantesPago.id_planpago"
                   :items="apiForms.planPagos"
                   item-value="id_planpago"
                   item-text="descripcion"
                   label="Plan de Pago"
                   @change="comisionBancaria()"
-                  :rules="(comprobantesPago.id_tipo == 8 || comprobantesPago.id_tipo == 9) ? bancoRules : []"
+                  :rules="((comprobantesPago.id_tipo == 8 || comprobantesPago.id_tipo == 9) && pagar_a == 'agencia') ? bancoRules : []"
                 ></v-select>
               </v-col>
               <v-col cols="12">
@@ -689,12 +756,12 @@
     <v-dialog v-model="dialog_confirmar_guardar" max-width="500">
       <v-card>
         <v-card-title
-          v-if="typeof this.ordenPago.id_orden_pago == 'undefined'"
+          v-if="typeof this.ordenPago.id_orden_pago == 'undefined' && typeof this.ordenPago.id_orden_compra == 'undefined'"
           class="headline"
         >¿Estas seguro de guardar la orden?</v-card-title>
         <v-card-title v-else class="headline">¿Estas seguro de actualizar la orden?</v-card-title>
         <v-card-text
-          v-if="typeof this.ordenPago.id_orden_pago == 'undefined'"
+          v-if="typeof this.ordenPago.id_orden_pago == 'undefined' && typeof this.ordenPago.id_orden_compra == 'undefined'"
         >Esta a punto de guardar la orden.</v-card-text>
         <v-card-text v-else>Esta a punto de actualizar la orden.</v-card-text>
         <v-card-text v-show="Array.isArray(this.ultimo_comprobante_pago) == false">
@@ -735,12 +802,22 @@
                 <!-- <v-alert dense outlined type="error">Ocurrió un error desconocido.</v-alert> -->
               </v-col>
               <v-col cols="12" v-if="estatus_pago=='success'">
-                <v-btn
+                <v-row v-if="pdfComprobantes.length > 0">
+                  <div v-for="(pdf, keyPdf) in pdfComprobantes" :key="keyPdf" class="mr-3">
+                    <v-btn
+                      outlined
+                      color="indigo"
+                      :href="pdf.url"
+                      target="_blank"
+                    >Imprimir {{ (pdf.formato == 'egreso') ? 'Póliza de Egreso' : (pdf.formato == 'movimiento') ? 'Comprobante de mov.' : (pdf.formato == 'recibo') ? 'Recibo' : 'Orden' }}</v-btn>
+                  </div>
+                </v-row>
+                <!-- <v-btn
                   outlined
                   color="indigo"
                   :href="redirect_pdf_comprobante"
                   target="_blank"
-                >Imprimir Comprobante</v-btn>
+                >Imprimir Comprobante</v-btn>-->
               </v-col>
               <v-col cols="12" v-if="estatus_pago=='success'">
                 <h4>Subir Comprobante de Pago</h4>
@@ -761,6 +838,25 @@
             text
             @click="dialog_confirmacion_pago = false; resetCampos(); id_comprobante_pago = ''; clearDropzone();"
           >Cerrar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="dialog_reset_modulo" max-width="400">
+      <v-card>
+        <v-card-title class="headline">Orden Pendiente</v-card-title>
+
+        <v-card-text>Tiene una orden en proceso de pago, ¿Desea generar una nueva orden?</v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+
+          <v-btn color="green darken-1" text @click="dialog_reset_modulo = false">Cancelar</v-btn>
+
+          <v-btn
+            color="green darken-1"
+            text
+            @click="dialog_reset_modulo = false; resetAll();"
+          >Aceptar</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
