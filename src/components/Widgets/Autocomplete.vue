@@ -11,6 +11,7 @@
       hide-no-data
       item-text="nombre"
       item-value="id"
+      :filter="getLista"
       :label="tituloBusqueda"
       hint="ESCRIBA MAS DE 3 LETRAS..."
       no-data-text="ESCRIBA MAS DE 3 LETRAS..."
@@ -47,17 +48,26 @@ export default {
       this.$emit("input", e);
     },
     getLista(item, queryText) {
-      // console.log(item);
-      // console.log(queryText);
-      // var search = queryText.split(" ");
-      // var bandera = false;
-      // lista = item.nombre.toLowerCase().includes(queryText.toLowerCase());
-      // search.forEach(palabra => {
-      //   if (item.nombre.toLowerCase().includes(palabra.toLowerCase())) {
-      //       bandera = true;
-      //     }
-      // });
-      return item.nombre.toLowerCase().includes(queryText.toLowerCase());
+      var search = queryText.split(" ");
+      var totalPalabras = search.length;
+
+      var bandera = false;
+      var cont = 0;
+      var hotel = item.nombre.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); //quitar tildes y ñ
+      search.forEach(palabra => {
+        var sensitive = palabra.toLowerCase();
+        var expresion = new RegExp(`${sensitive}.*`, "i");
+        var matchesRegex = expresion.test(hotel.toLowerCase());
+        if (matchesRegex) {
+          cont = cont + 1;
+        }
+      });
+      if (cont == totalPalabras) {
+        bandera = true;
+      }
+
+      // return item.nombre.toLowerCase().includes(queryText.toLowerCase());
+      return bandera;
     }
   },
   watch: {
