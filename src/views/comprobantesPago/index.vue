@@ -20,7 +20,7 @@
               <tr>
                 <td class="text-right">
                   <a
-                    :href="redirectRMT + 'contabilidad/ordenPago/GeneratePdf/idOrden/' + props.item.id_orden_pago"
+                    :href="redirectRMT + 'contabilidad/ordenPago/GeneratePdf/idOrden/' + props.item.id_orden_pago + '/formato/' + props.item.tipo_formato"
                     target="_blank"
                   >{{ props.item.id_comprobante_pago }}</a>
                 </td>
@@ -30,6 +30,7 @@
                 <td>{{ props.item.nombre_agencia }}</td>
                 <td>{{ props.item.nombre_usuario }}</td>
                 <td class="text-right">{{ props.item.comision }}</td>
+                <td>{{ tipoFormato(props.item.tipo_formato) }}</td>
                 <td>
                   <v-chip
                     :color="getEstatus(props.item.estatus,'color')"
@@ -149,6 +150,7 @@
               >
                 <v-card>
                   <v-img
+                    v-show="!validaArchivo(file.src)"
                     :src="file.src"
                     class="white--text align-end"
                     gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
@@ -158,6 +160,22 @@
                   >
                     <!-- <v-card-title v-text="'Pre-fab homes'"></v-card-title> -->
                   </v-img>
+                  <v-card v-show="validaArchivo(file.src)" style="text-align:center;">
+                    <a
+                      :href=" 'https://rutamayatravel.com/images/archivos-comprobantespagos/' + file.title"
+                      target="_blank"
+                    >
+                      <v-img
+                        src="https://icons.iconarchive.com/icons/hopstarter/soft-scraps/128/Adobe-PDF-Document-icon.png"
+                        class="white--text align-end"
+                        gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
+                        height="200px"
+                        style="cursor: pointer;"
+                      >
+                        <!-- <v-card-title v-text="'Pre-fab homes'"></v-card-title> -->
+                      </v-img>
+                    </a>
+                  </v-card>
                   <v-card-actions>
                     <v-btn icon @click="deleteFile(file)">
                       <v-icon>fas fa-trash</v-icon>
@@ -226,6 +244,7 @@ export default {
         { text: "Agencia", value: "nombre_agencia", sortable: true },
         { text: "Usuario Elaboró", value: "nombre_usuario", sortable: true },
         { text: "% Comisión", value: "comision", sortable: true },
+        { text: "Formato", value: "tipo_formato", sortable: true },
         { text: "Estatus", value: "estatus", sortable: true },
         { text: "Facturación", value: "actions", sortable: false },
         { text: "Opciones", value: "actions", sortable: false }
@@ -236,8 +255,7 @@ export default {
       array_files: [],
       files: [],
       dropzoneOptions: {
-        url:
-          this.redirectRMTApi + "contabilidad/comprobantesPago/subirArchivo",
+        url: this.redirectRMTApi + "contabilidad/comprobantesPago/subirArchivo",
         method: "POST",
         thumbnailWidth: 150,
         maxFilesize: 5,
@@ -261,7 +279,8 @@ export default {
       this.loader = true;
       this.$http
         .get(
-          this.redirectRMTApi + "contabilidad/comprobantesPago/obtenerComprobantesPago"
+          this.redirectRMTApi +
+            "contabilidad/comprobantesPago/obtenerComprobantesPago"
         )
         .then(
           function(response) {
@@ -275,6 +294,37 @@ export default {
     },
     formatDate(value) {
       return moment(value).format("DD/MM/YYYY");
+    },
+    tipoFormato(text) {
+      var formato = "";
+      switch (text) {
+        case "egreso":
+          formato = "Póliza de Egreso";
+          break;
+        case "movimiento":
+          formato = "Comp. Movimiento";
+          break;
+        case "credito":
+          formato = "Nota de Crédito";
+          break;
+        case "recibo":
+        default:
+          formato = "Recibo";
+          break;
+      }
+      return formato;
+    },
+    validaArchivo(archivo) {
+      var bandera = false;
+      if (archivo.indexOf(".pdf") !== -1) {
+        bandera = true;
+      } else if (archivo.indexOf(".doc") !== -1) {
+        bandera = true;
+      } else if (archivo.indexOf(".docx") !== -1) {
+        bandera = true;
+      }
+
+      return bandera;
     },
     getEstatus(estatus, peticion) {
       var valor = "";
@@ -316,7 +366,8 @@ export default {
     getFiles() {
       this.$http
         .get(
-          this.redirectRMTApi + "contabilidad/comprobantesPago/getFiles/idPago/" +
+          this.redirectRMTApi +
+            "contabilidad/comprobantesPago/getFiles/idPago/" +
             this.editItemComprobante.id_comprobante_pago
         )
         .then(

@@ -8,7 +8,7 @@
           customClasses="mb-0 mt-0"
         >
           <v-card-title>
-            Ordenes de Pago
+            Ordenes de Compra
             <v-spacer></v-spacer>
             <v-text-field
               v-model="search"
@@ -22,7 +22,7 @@
             :headers="headers_ordenes"
             :items="array_ordenes"
             :search="search"
-            item-key="id_orden_pago"
+            item-key="id_orden_compra"
             class="elevation-1"
             :loading="loader"
             loading-text="Cargando... Espere"
@@ -31,10 +31,10 @@
               <tr>
                 <td class="text-right">
                   <a
-                    @click="abrirComprobantes(props.item.id_orden_pago)"
-                  >{{ props.item.id_orden_pago }}</a>
+                    @click="abrirComprobantes(props.item.id_orden_compra)"
+                  >{{ props.item.id_orden_compra }}</a>
                 </td>
-                <td>{{ props.item.nombre_agencia }}</td>
+                <td>{{ (props.item.nombre_hotel) ? props.item.nombre_hotel : 'Tour' }}</td>
                 <td class="text-center">{{ formatDate(props.item.log) }}</td>
                 <td class="text-right">$ {{ $RMT.formatoPrecio(props.item.importe_total) }}</td>
                 <td>{{ props.item.observaciones }}</td>
@@ -51,12 +51,18 @@
                     </template>
                     <span>Detalles de la Orden</span>
                   </v-tooltip>
-                  <a
-                    @click="abrirComprobantes(props.item.id_orden_pago)"
-                    style="color:black; padding-left:5px; padding-right:5px;"
-                  >
-                    <v-icon>fas fa-file-pdf</v-icon>
-                  </a>
+                  <v-tooltip top>
+                    <template v-slot:activator="{ on }">
+                      <a
+                        @click="abrirComprobantes(props.item.id_orden_compra)"
+                        style="color:black; padding-left:5px; padding-right:5px;"
+                        v-on="on"
+                      >
+                        <v-icon>fas fa-file-pdf</v-icon>
+                      </a>
+                    </template>
+                    <span>Abrir Comprobantes</span>
+                  </v-tooltip>
                   <v-tooltip top>
                     <template v-slot:activator="{ on }">
                       <v-icon
@@ -69,7 +75,7 @@
                         @click="OpenDialogPay(props.item)"
                       >fas fa-cash-register</v-icon>
                     </template>
-                    <span>Pagar Orden de pago</span>
+                    <span>Pagar Orden de Compra</span>
                   </v-tooltip>
                 </td>
                 <td>{{ props.item.nombre_usuario }}</td>
@@ -87,64 +93,56 @@
                   <span class="headline">Orden: #{{ folio_orden_pago }}</span>
                 </v-col>
                 <v-spacer></v-spacer>
-                <!-- <v-col
+                <v-col
                   v-show="editItemOrden.estatus != 'C' && editItemOrden.estatus != 'PA'"
                   class="text-right"
                 >
-                  <v-btn class="ma-2" color="red" dark @click="confirmRemoveDetalle(null)">
+                  <!-- <v-btn class="ma-2" color="red" dark @click="confirmRemoveDetalle(null)">
                     <v-icon dark left>mdi-cancel</v-icon>Cancelar Orden
-                  </v-btn>
-                </v-col> -->
+                  </v-btn>-->
+                </v-col>
               </v-row>
             </v-card-title>
             <v-card-text>
               <v-data-table
                 :headers="headers_detalles"
                 :items="array_detalles"
-                item-key="id_orden_pago_detalles"
+                item-key="id_orden_compra_detalles"
                 class="elevation-1"
                 :loading="loaderD"
                 loading-text="Cargando... Espere"
               >
                 <template v-slot:item="props">
                   <tr>
-                    <td class="text-right">{{ props.item.id_orden_pago_detalles }}</td>
+                    <td class="text-right">{{ props.item.id_orden_compra_detalles }}</td>
                     <td class="text-right">
                       <span v-if="props.item.tipo_producto == 'Reservacion'">
                         <a
                           :href="
                             redirectRMT +
-                              '/reservacion/view/id/' +
+                              'reservacion/view/id/' +
                               props.item.identificador
                           "
                           target="_blank"
                         >H{{ props.item.identificador }}</a>
                       </span>
-                      <span v-else-if="props.item.tipo_producto == 'Actividad'">
-                        <a
-                          :href="
-                            redirectRMT +
-                              '/activities/view/id/' +
-                              props.item.identificador
-                          "
-                          target="_blank"
-                        >A{{ props.item.identificador }}</a>
-                      </span>
                       <span v-else-if="props.item.tipo_producto == 'Tour'">
                         <a
                           :href="
                             redirectRMT +
-                              '/tourReservacion/view/id/' +
+                              'tourReservacion/view/id/' +
                               props.item.identificador
                           "
                           target="_blank"
                         >T{{ props.item.identificador }}</a>
                       </span>
-                      <span v-else-if="props.item.tipo_producto == 'Grupo'">
+                      <span
+                        v-else-if="props.item.tipo_producto == 'Grupo' || props.item.tipo_producto == 'Bloqueo'"
+                      >
                         <a
                           :href="
                             redirectRMT +
-                              '/bloqueos/view/id/' +
+                              'bloqueos/view/id/' +
                               props.item.identificador
                           "
                           target="_blank"
@@ -154,34 +152,22 @@
                         <a
                           :href="
                             redirectRMT +
-                              '/bloqueos/view/id/' +
+                              'bloqueos/view/id/' +
                               props.item.identificador
                           "
                           target="_blank"
                         >B{{ props.item.identificador }}</a>
                       </span>
-                      <span v-else>
-                        <a
-                          :href="
-                            redirectRMT +
-                              '/bloqueos/view/id/' +
-                              separarHabitacion(props.item.identificador, 0)
-                          "
-                          target="_blank"
-                        >{{ props.item.identificador }}</a>
-                      </span>
                     </td>
                     <!-- <td v-show="showDescription == false" @click="showDescription = true;"> -->
-                    <td>
-                      {{ props.item.descripcion }}
-                    </td>
+                    <td>{{ props.item.descripcion }}</td>
                     <!-- <td v-show="showDescription == true">
                       <v-text-field
                       v-model.lazy="props.item.descripcion"
                       @keyup.enter="showDescription = false; $emit('update');"
                       autofocus
                     />
-                    </td> -->
+                    </td>-->
                     <td>{{ props.item.tipo_producto }}</td>
                     <td class="text-right">$ {{ $RMT.formatoPrecio(props.item.importe) }}</td>
                     <td>
@@ -194,7 +180,7 @@
                         @click="confirmRemoveDetalle(props.item)"
                       >
                         <v-icon>fas fa-window-close</v-icon>
-                      </v-btn> -->
+                      </v-btn>-->
                     </td>
                   </tr>
                 </template>
@@ -259,7 +245,7 @@
     >
       <v-card>
         <v-toolbar dark color="pink">
-          <v-toolbar-title>PAGAR ORDEN DE PAGO #{{ comprobantesPago.id_orden_pago }}</v-toolbar-title>
+          <v-toolbar-title>PAGAR ORDEN DE COMPRA #{{ comprobantesPago.id_orden_pago }}</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-toolbar-items>
             <v-btn
@@ -379,7 +365,7 @@
               </v-col>
               <v-col
                 cols="12"
-                md="8"
+                md="6"
                 v-show="
                   comprobantesPago.id_tipo == '2' ||
                     comprobantesPago.id_tipo == '6' ||
@@ -403,7 +389,7 @@
                   @change="buscaCuentaBanco()"
                 ></v-select>
               </v-col>
-              <v-col
+              <!-- <v-col
                 cols="12"
                 md="4"
                 v-show="
@@ -424,9 +410,10 @@
                       : []
                   "
                 ></v-text-field>
-              </v-col>
+              </v-col>-->
               <v-col
                 cols="12"
+                md="6"
                 v-show="
                   comprobantesPago.id_tipo == '2' ||
                     comprobantesPago.id_tipo == '6' ||
@@ -451,7 +438,7 @@
                   "
                 ></v-select>
               </v-col>
-              <v-col
+              <!-- <v-col
                 cols="12"
                 v-show="
                   (comprobantesPago.id_tipo == '8' ||
@@ -472,7 +459,7 @@
                       : []
                   "
                 ></v-select>
-              </v-col>
+              </v-col>-->
               <v-col cols="12">
                 <v-text-field
                   v-model="comprobantesPago.importe"
@@ -483,7 +470,7 @@
                   :rules="importeRules"
                 ></v-text-field>
               </v-col>
-              <v-col
+              <!-- <v-col
                 cols="12"
                 md="4"
                 v-show="
@@ -497,7 +484,7 @@
                   suffix="%"
                   @change="modificoComision"
                 ></v-text-field>
-              </v-col>
+              </v-col>-->
               <v-col
                 cols="12"
                 md="8"
@@ -643,10 +630,10 @@ export default {
       headers_ordenes: [
         {
           text: "Folio",
-          value: "id_orden_pago",
+          value: "id_orden_compra",
           sortable: true
         },
-        { text: "Agencia", value: "nombre_agencia", sortable: true },
+        { text: "Hotel", value: "nombre_hotel", sortable: true },
         { text: "Fecha Creación", value: "log", sortable: true },
         { text: "Importe", value: "importe_total", sortable: true },
         { text: "Observaciones", value: "observaciones", sortable: true },
@@ -669,7 +656,7 @@ export default {
       headers_detalles: [
         {
           text: "ID",
-          value: "id_orden_pago_detalles",
+          value: "id_orden_compra_detalles",
           sortable: true
         },
         { text: "Identificador", value: "identificador", sortable: true },
@@ -772,7 +759,7 @@ export default {
       // ################################## Fin Atributos de modal
       fondoInSuficiente: false,
       pdfComprobantes: [],
-      showDescription: false,
+      showDescription: false
     };
   },
   created() {
@@ -782,7 +769,9 @@ export default {
     loadOrdenes() {
       this.loader = true;
       this.$http
-        .get(this.redirectRMTApi + "contabilidad/ordenPago/obtenerOrdenesPago")
+        .get(
+          this.redirectRMTApi + "contabilidad/ordenCompra/obtenerOrdenesPago"
+        )
         .then(
           function(response) {
             this.array_ordenes = response.data;
@@ -799,16 +788,16 @@ export default {
     OpenDialog: function(item) {
       this.dialog = true;
       this.array_detalles = [];
-      this.folio_orden_pago = item.id_orden_pago;
+      this.folio_orden_pago = item.id_orden_compra;
       this.obtenerItemTablaOrden(item);
-      this.obtenerItemTablaDetalles(item.id_orden_pago);
+      this.obtenerItemTablaDetalles(item.id_orden_compra);
     },
     obtenerItemTablaDetalles: function(item) {
       this.loaderD = true;
       this.$http
         .get(
           this.redirectRMTApi +
-            "contabilidad/ordenPago/obtenerOrdenesDetalles?idOrden=" +
+            "contabilidad/ordenCompra/obtenerOrdenesDetalles?idOrden=" +
             item
         )
         .then(
@@ -874,6 +863,7 @@ export default {
           prefijo = "T" + identificador;
           break;
         case "Grupo":
+        case "Bloqueo":
           prefijo = "G" + identificador;
           break;
         case "Boda":
@@ -899,7 +889,7 @@ export default {
         this.showMotivo = true;
         this.mensaje_confirmacion_title =
           "¿Estas seguro de cancelar la orden " +
-          this.editItemOrden.id_orden_pago +
+          this.editItemOrden.id_orden_compra +
           "?";
         this.mensaje_confirmacion_body =
           "Estas a punto de cancelar la orden. Esta acción es irreversible. Si se detecta saldo a favor, se agregará a la cuenta de fondo del agencia.";
@@ -938,16 +928,16 @@ export default {
       }
       var data = {
         Orden: {
-          OrdenPago: this.editItemOrden,
-          OrdenPagoDetalles: this.array_detalles
+          OrdenCompra: this.editItemOrden,
+          OrdenCompraDetalles: this.array_detalles
         },
         agregaCuenta: agregaCuenta,
-        tipo_orden: "pago"
+        tipo_orden: "compra"
       };
       console.log(data);
       this.$http
         .post(
-          this.redirectRMTApi + "contabilidad/ordenPago/crearOrdenPago",
+          this.redirectRMTApi + "contabilidad/ordenCompra/crearOrdenCompra",
           data,
           {
             emulateJSON: true
@@ -959,7 +949,7 @@ export default {
             if (response.body.error == false) {
               var model = response.body;
               this.updateTablaOrdenPago(model.model);
-              this.obtenerItemTablaDetalles(model.model.id_orden_pago);
+              this.obtenerItemTablaDetalles(model.model.id_orden_compra);
               this.dialog_eliminar_detalle = false;
               this.mensaje("Se ha actualizado la orden correctamente", "green");
             } else {
@@ -1000,34 +990,25 @@ export default {
       this.$http
         .get(
           this.redirectRMTApi +
-            "contabilidad/ordenPago/consultaOrdenPago/idOrden/" +
-            item.id_orden_pago
+            "contabilidad/ordenCompra/consultaOrdenCompra/idOrden/" +
+            item.id_orden_compra
         )
         .then(
           function(response) {
             var model = response.body;
-            var searchAbono = model.detalles.find(
-              item => item.tipo_producto === "Abono-cuenta"
-            );
-            var searchCargo = model.detalles.find(
-              item => item.tipo_producto === "Cargo-cuenta"
-            );
-            this.es_cuenta_fondo = false;
-            this.es_cuenta_cargo = false;
-            if (
-              typeof searchAbono != "undefined" &&
-              Object.keys(searchAbono).length > 0
-            ) {
-              this.es_cuenta_fondo = true;
-            }
-            if (
-              typeof searchCargo != "undefined" &&
-              Object.keys(searchCargo).length > 0
-            ) {
-              this.es_cuenta_cargo = true;
-            }
-            this.comprobantesPago.id_orden_pago = model.model.id_orden_pago;
-            this.comprobantesPago.id_agencia = model.model.id_agencia;
+            // var searchCargo = model.detalles.find(
+            //   item => item.tipo_producto === "Cargo-cuenta"
+            // );
+            this.es_cuenta_cargo = true;
+
+            // if (
+            //   typeof searchCargo != "undefined" &&
+            //   Object.keys(searchCargo).length > 0
+            // ) {
+            //   this.es_cuenta_cargo = true;
+            // }
+            this.comprobantesPago.id_orden_pago = model.model.id_orden_compra;
+            this.comprobantesPago.id_agencia = 0;
             this.comprobantesPago.importe = model.pagos.saldores;
             this.saldoOrden = parseFloat(model.model.importe_total);
 
@@ -1064,19 +1045,13 @@ export default {
           if (this.$refs.form.validate()) {
             this.hidden_click_pagar = false;
             this.show_click_pagar = true;
-            var tipo_orden = "";
-            if (this.es_cuenta_cargo == true) {
-              tipo_orden = "compra-agencia";
-            } else {
-              tipo_orden = "pago";
-            }
             var comprobante = {
               ComprobantesPago: this.comprobantesPago,
               comision: 0,
               total: this.total_pago,
               saldores: this.saldores,
-              tipo_orden: tipo_orden,
-              tipo: "agencia"
+              tipo_orden: "compra-hotel",
+              tipo: "hotel"
             };
             this.$http
               .post(
@@ -1129,10 +1104,7 @@ export default {
                     }
 
                     this.updateTablaOrdenPago(response.body.orden);
-                    this.modalSuccessPago(
-                      response.body.comprobante,
-                      tipo_orden
-                    );
+                    this.modalSuccessPago(response.body.comprobante);
                   } else {
                     this.mensaje(
                       "Error al momento de guardar el comprobante de pago",
@@ -1156,8 +1128,8 @@ export default {
         this.mensaje("Elija un tipo de pago.", "warning");
       }
     },
-    modalSuccessPago(model, tipo_orden) {
-      console.log(tipo_orden);
+    modalSuccessPago(model) {
+      //   console.log(tipo_orden);
 
       var that = this;
       that.pdfComprobantes = [];
@@ -1165,7 +1137,7 @@ export default {
       this.estatus_pago = "success";
       this.alert_mensaje = "Pago realizado con éxito.";
       var redirect_orden = "";
-      redirect_orden = "contabilidad/ordenPago/GeneratePdf/idOrden/";
+      redirect_orden = "contabilidad/ordenCompra/GeneratePdf/idOrden/";
       that.pdfComprobantes.push({
         url:
           this.redirectRMT +
@@ -1202,30 +1174,30 @@ export default {
     },
     getPolizas() {
       if (this.comprobantesPago.id_tipo == "15") {
-        this.$http
-          .get(
-            this.redirectRMTApi +
-              "contabilidad/comprobantesPago/polizasAgencia/agencia/" +
-              +this.editItemOrden.id_agencia
-          )
-          .then(
-            function(response) {
-              this.itemPolizas = response.data;
-              this.itemPolizas.fondo = parseFloat(this.itemPolizas.fondo) * -1;
-              var importePago = parseFloat(this.comprobantesPago.importe);
-              var importeFondo = parseFloat(this.itemPolizas.fondo);
-              if (importePago > importeFondo && importeFondo > 0) {
-                this.comprobantesPago.importe = parseFloat(
-                  this.itemPolizas.fondo
-                );
-              }
-              // this.comprobantesPago.importe = parseFloat(this.itemPolizas.fondo);
-              this.operacionesMath();
-            },
-            function() {
-              console.log("Error");
-            }
-          );
+        // this.$http
+        //   .get(
+        //     this.redirectRMTApi +
+        //       "contabilidad/comprobantesPago/polizasAgencia/agencia/" +
+        //       +this.editItemOrden.id_agencia
+        //   )
+        //   .then(
+        //     function(response) {
+        //       this.itemPolizas = response.data;
+        //       this.itemPolizas.fondo = parseFloat(this.itemPolizas.fondo) * -1;
+        //       var importePago = parseFloat(this.comprobantesPago.importe);
+        //       var importeFondo = parseFloat(this.itemPolizas.fondo);
+        //       if (importePago > importeFondo && importeFondo > 0) {
+        //         this.comprobantesPago.importe = parseFloat(
+        //           this.itemPolizas.fondo
+        //         );
+        //       }
+        //       // this.comprobantesPago.importe = parseFloat(this.itemPolizas.fondo);
+        //       this.operacionesMath();
+        //     },
+        //     function() {
+        //       console.log("Error");
+        //     }
+        //   );
       }
     },
     comisionBancaria() {
@@ -1290,14 +1262,28 @@ export default {
         .get(
           this.redirectRMTApi +
             "contabilidad/comprobantesPago/ObtenerOrdenComprobantes/item/" +
-            item + "/tipo/agencia"
+            item +
+            "/tipo/hotel"
         )
         .then(
           function(response) {
             var respuesta = response.body;
-            window.open(this.redirectRMT + "contabilidad/ordenPago/GeneratePdf/idOrden/" + item + "/formato/orden", '_blank');
-            respuesta.forEach((pdf) => {
-              window.open(this.redirectRMT + "contabilidad/ordenPago/GeneratePdf/idOrden/" + item + "/formato/" + pdf.tipo_formato, '_blank');
+            window.open(
+              this.redirectRMT +
+                "contabilidad/ordenCompra/GeneratePdf/idOrden/" +
+                item +
+                "/formato/orden",
+              "_blank"
+            );
+            respuesta.forEach(pdf => {
+              window.open(
+                this.redirectRMT +
+                  "contabilidad/ordenCompra/GeneratePdf/idOrden/" +
+                  item +
+                  "/formato/" +
+                  pdf.tipo_formato,
+                "_blank"
+              );
             });
           },
           function() {

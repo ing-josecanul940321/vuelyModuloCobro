@@ -123,7 +123,8 @@ export default {
             ],
             importeRules: [
                 v => !!v || "Error de Validación, ingrese un importe válido.",
-                v => v <= this.total_saldo || "El pago es mayor al importe seleccionado"
+                v => v > 0 || "Pago debe ser mayor a cero",
+                v => v <= this.total_saldo || "El pago es mayor al importe seleccionado",
             ],
             // ########
             dropzoneOptions: {
@@ -146,6 +147,7 @@ export default {
             hidden_click_pagar: true,
             show_click_pagar: false,
             itemPolizas: [],
+            fondoInSuficiente: false,
             // ######################
             es_cuenta_fondo: false,
             disabledTextField: false,
@@ -163,6 +165,7 @@ export default {
             model_lista_hoteles: null,
             dialog_reset_modulo: false,
             pdfComprobantes: [],
+            filtrarTexto: ''
 
         }
     },
@@ -172,19 +175,26 @@ export default {
     mounted() {},
     methods: {
         peticionTest() {
-            var url = "";
-            if (this.pagar_a == 'agencia') {
-                var id_agencia = '';
-                if (this.model_agencia_selected != null) {
-                    id_agencia = this.model_agencia_selected.id_agencia;
-                }
-                url = "contabilidad/ordenPago/search?identificador=" + this.id_producto + '&agencia=' + id_agencia;
-            } else if (this.pagar_a == 'hotel') {
-                var id_hotel = '';
-                if (this.model_hotel_selected != null) {
-                    id_hotel = this.model_hotel_selected.id_hotel;
-                }
-                url = "contabilidad/ordenPago/searchHotel?identificador=" + this.id_producto + '&hotel=' + id_hotel;
+            var url = "contabilidad/ordenPago/search?identificador=";
+            switch (this.pagar_a) {
+                case 'hotel':
+                    var id_hotel = '';
+                    if (this.model_hotel_selected != null) {
+                        id_hotel = this.model_hotel_selected.id_hotel;
+                    }
+                    url += this.id_producto + '&hotel=' + id_hotel;
+                    break;
+                case 'tour':
+                    url += this.id_producto + '&tour=1';
+                    break;
+                case 'agencia':
+                default:
+                    var id_agencia = '';
+                    if (this.model_agencia_selected != null) {
+                        id_agencia = this.model_agencia_selected.id_agencia;
+                    }
+                    url += this.id_producto + '&agencia=' + id_agencia;
+                    break;
             }
             this.$http
                 .get(this.redirectRMTApi + url).then(function (response) {
@@ -223,14 +233,14 @@ export default {
         },
         crearOrdenPago() {
             this.calcularTotalSaldo();
-            if (this.json_busqueda_prueba.length > 0 && (this.model_agencia_selected != null || this.model_hotel_selected != null)) {
+            if (this.json_busqueda_prueba.length > 0 && (this.model_agencia_selected != null || this.model_hotel_selected != null || this.pagar_a == 'tour')) {
                 this.ordenPago.importe_total = this.total_saldo;
                 if (this.pagar_a == 'agencia') {
                     this.array_test = {
                         'OrdenPago': this.ordenPago,
                         'OrdenPagoDetalles': this.json_busqueda_prueba,
                     };
-                } else if (this.pagar_a == 'hotel') {
+                } else if (this.pagar_a == 'hotel' || this.pagar_a == 'tour') {
                     this.array_test = {
                         'OrdenCompra': this.ordenPago,
                         'OrdenCompraDetalles': this.json_busqueda_prueba,
@@ -256,13 +266,13 @@ export default {
 
         },
         ordenDePago() {
-            console.log('crea orden');
+            // console.log('crea orden');
             var tipo_orden = '',
                 url = '';
             if (this.pagar_a == 'agencia') {
                 tipo_orden = 'pago'
                 url = 'contabilidad/ordenPago/crearOrdenPago';
-            } else if (this.pagar_a == 'hotel') {
+            } else if (this.pagar_a == 'hotel' || this.pagar_a == 'tour') {
                 tipo_orden = 'compra'
                 url = 'contabilidad/ordenCompra/crearOrdenCompra';
             }
@@ -312,14 +322,14 @@ export default {
             });
         },
         actualizarOrdenDePago() {
-            console.log('actua orden');
-            
+            // console.log('actua orden');
+
             var tipo_orden = '',
                 url = '';
             if (this.pagar_a == 'agencia') {
                 tipo_orden = 'pago'
                 url = 'contabilidad/ordenPago/crearOrdenPago';
-            } else if (this.pagar_a == 'hotel') {
+            } else if (this.pagar_a == 'hotel' || this.pagar_a == 'tour') {
                 tipo_orden = 'compra'
                 url = 'contabilidad/ordenCompra/crearOrdenCompra';
             }
@@ -337,11 +347,11 @@ export default {
                     this.dialog_confirmar_guardar = false;
                     var model = response.body;
                     this.ordenPago = model.model;
-                    console.log(this.comprobantesPago);
-                    
+                    // console.log(this.comprobantesPago);
+
                     if (this.agencia_pagar_orden == true) {
-                        console.log('actualizar orden');
-                        
+                        // console.log('actualizar orden');
+
                         if (model.saldada == true) {
                             this.resetAll();
                             if (tipo_orden == 'pago') {
@@ -354,12 +364,12 @@ export default {
                             this.comprobantesPago.id_orden_pago = (model.model.id_orden_pago) ? model.model.id_orden_pago : model.model.id_orden_compra;
                             this.comprobantesPago.id_agencia = (model.model.id_agencia) ? model.model.id_agencia : 0;
                             if (Array.isArray(this.ultimo_comprobante_pago) == false) {
-                                console.log('aqui saldo restante 1');
+                                // console.log('aqui saldo restante 1');
                                 total_saldo = total_saldo_aux - this.ultimo_comprobante_pago.importe;
-                                console.log(total_saldo);
+                                // console.log(total_saldo);
                                 this.comprobantesPago.importe = this.redondearPrecio(total_saldo, 2);
                             } else {
-                                console.log('aqui saldo restante 2');
+                                // console.log('aqui saldo restante 2');
                                 this.comprobantesPago.importe = model.model.importe_total;
                             }
                             this.total_pago = this.comprobantesPago.importe;
@@ -393,107 +403,120 @@ export default {
             });
         },
         pagarOrdenPago() {
+            if (this.itemPolizas.fondo) {
+                this.fondoInSuficiente = false;
+                if (this.comprobantesPago.id_tipo == '15' && this.comprobantesPago.importe > this.itemPolizas.fondo) {
+                    this.fondoInSuficiente = true;
+                }
+            }
             if (this.comprobantesPago.id_tipo != 0 || this.comprobantesPago.id_tipo != "") {
-                if (this.$refs.form.validate()) {
-                    this.hidden_click_pagar = false;
-                    this.show_click_pagar = true;
+                if (this.fondoInSuficiente == false) {
+                    if (this.$refs.form.validate()) {
+                        this.hidden_click_pagar = false;
+                        this.show_click_pagar = true;
 
-                    var tipo_orden = '';
-                    if (this.pagar_a == 'agencia' && this.tipo_modulo == '0') {
-                        tipo_orden = 'pago';
-                    } else if (this.pagar_a == 'agencia' && this.tipo_modulo == '1') {
-                        tipo_orden = 'compra-agencia';
-                    } else if (this.pagar_a == 'hotel') {
-                        tipo_orden = 'compra-hotel';
-                    }
-                    var comprobante = {
-                        "ComprobantesPago": this.comprobantesPago,
-                        "comision": 0,
-                        "total": this.total_pago,
-                        "saldores": this.saldores,
-                        "tipo_orden": tipo_orden,
-                        "tipo": this.pagar_a
-                    }
-                    this.$http.post(this.redirectRMTApi + 'contabilidad/comprobantesPago/generarComprobantePago', comprobante, {
-                        emulateJSON: true
-                    }).then(function (response) {
-                        this.hidden_click_pagar = true;
-                        this.show_click_pagar = false;
-                        if (response.body.error == false) {
-                            this.ultimo_comprobante_pago = comprobante.ComprobantesPago;
-                            this.comprobantesPago = response.body.comprobante;
-                            this.id_comprobante_pago = this.comprobantesPago.id_comprobante_pago;
-
-                            var ultimo_importe_pagado = parseFloat(this.ultimo_importe_pagado) + parseFloat(this.comprobantesPago.importe);
-                            this.ultimo_importe_pagado = this.redondearPrecio(ultimo_importe_pagado, 2);
-
-                            if (this.ultimo_importe_pagado > 0) {
-                                var importe_saldo = parseFloat(this.total_saldo) - parseFloat(this.ultimo_importe_pagado);
-                                this.comprobantesPago.importe = this.redondearPrecio(importe_saldo, 2);
-                            } else {
-                                this.comprobantesPago.importe = comprobante.saldores;
-                            }
-                            this.total_pago = this.comprobantesPago.importe;
-                            this.total_saldo_aux = this.total_pago;
-                            this.cambiarSaldoADolares();
-
-                            // var saldores = parseFloat(this.total_pago) - parseFloat(this.comprobantesPago.importe);
-
-                            // if (saldores < 0) {
-                            //     saldores = 0;
-                            // }
-                            // this.saldores = this.redondearPrecio(saldores, 2);
-                            this.operacionesMath();
-
-                            if (this.comprobantesPago.importe <= 0) {
-                                this.dialog_guardar_pagar = false;
-                                this.resetCampos();
-                                this.agencia_pagar_orden = false;
-                                this.habilitarCamposCuenta();
-                                // if (tipo_orden == 'pago') {
-                                // }
-                                this.resetOrdenPago();
-                                this.nuevaOrden();
-                            }
-                            this.modalSuccessPago(response.body.comprobante,tipo_orden);
-                        } else {
-                            this.mensaje("Error al momento de guardar el comprobante de pago", "red");
+                        var tipo_orden = '';
+                        if (this.pagar_a == 'agencia' && this.tipo_modulo == '0') {
+                            tipo_orden = 'pago';
+                        } else if (this.pagar_a == 'agencia' && this.tipo_modulo == '1') {
+                            tipo_orden = 'compra-agencia';
+                        } else if (this.pagar_a == 'hotel' || this.pagar_a == 'tour') {
+                            tipo_orden = 'compra-hotel';
                         }
+                        var comprobante = {
+                            "ComprobantesPago": this.comprobantesPago,
+                            "comision": 0,
+                            "total": this.total_pago,
+                            "saldores": this.saldores,
+                            "tipo_orden": tipo_orden,
+                            "tipo": this.pagar_a
+                        }
+                        this.$http.post(this.redirectRMTApi + 'contabilidad/comprobantesPago/generarComprobantePago', comprobante, {
+                            emulateJSON: true
+                        }).then(function (response) {
+                            this.hidden_click_pagar = true;
+                            this.show_click_pagar = false;
+                            if (response.body.error == false) {
+                                this.ultimo_comprobante_pago = comprobante.ComprobantesPago;
+                                this.comprobantesPago = response.body.comprobante;
+                                this.id_comprobante_pago = this.comprobantesPago.id_comprobante_pago;
 
-                    }, function (response) {
-                        // Error
-                        console.log(response.body)
-                    });
+                                var ultimo_importe_pagado = parseFloat(this.ultimo_importe_pagado) + parseFloat(this.comprobantesPago.importe);
+                                this.ultimo_importe_pagado = this.redondearPrecio(ultimo_importe_pagado, 2);
+
+                                if (this.ultimo_importe_pagado > 0) {
+                                    var importe_saldo = parseFloat(this.total_saldo) - parseFloat(this.ultimo_importe_pagado);
+                                    this.comprobantesPago.importe = this.redondearPrecio(importe_saldo, 2);
+                                } else {
+                                    this.comprobantesPago.importe = comprobante.saldores;
+                                }
+                                this.total_pago = this.comprobantesPago.importe;
+                                this.total_saldo_aux = this.total_pago;
+                                this.cambiarSaldoADolares();
+
+                                // var saldores = parseFloat(this.total_pago) - parseFloat(this.comprobantesPago.importe);
+
+                                // if (saldores < 0) {
+                                //     saldores = 0;
+                                // }
+                                // this.saldores = this.redondearPrecio(saldores, 2);
+                                this.operacionesMath();
+
+                                if (this.comprobantesPago.importe <= 0) {
+                                    this.dialog_guardar_pagar = false;
+                                    this.resetCampos();
+                                    this.agencia_pagar_orden = false;
+                                    this.habilitarCamposCuenta();
+                                    // if (tipo_orden == 'pago') {
+                                    // }
+                                    this.resetOrdenPago();
+                                    this.nuevaOrden();
+                                }
+                                this.modalSuccessPago(response.body.comprobante, tipo_orden);
+                            } else {
+                                this.mensaje("Error al momento de guardar el comprobante de pago", "red");
+                            }
+
+                        }, function (response) {
+                            // Error
+                            console.log(response.body)
+                        });
+                    }
+                } else {
+                    this.mensaje("No tiene fondo suficiente para saldar el total de la orden.", "warning");
                 }
             } else {
                 this.mensaje("Elija un tipo de pago.", "warning");
             }
         },
-        modalSuccessPago(model,tipo_orden) {
+        modalSuccessPago(model, tipo_orden) {
             var that = this;
             that.pdfComprobantes = [];
             this.dialog_confirmacion_pago = true;
             this.estatus_pago = 'success';
             this.alert_mensaje = 'Pago realizado con éxito.';
-            that.pdfComprobantes.push({
-                'url': this.redirectRMT + "contabilidad/ordenPago/GeneratePdf/idOrden/" + this.comprobantesPago.id_orden_pago + "/formato/orden",
-                'formato': 'orden'
-            });
+            var redirect_orden = "";
             if (tipo_orden == 'pago' || tipo_orden == 'compra-agencia') {
-                this.pdfComprobantes.push({
-                    'url': this.redirectRMT + "contabilidad/ordenPago/GeneratePdf/idOrden/" + this.comprobantesPago.id_orden_pago + "/formato/" + model.tipo_formato,
+                redirect_orden = "contabilidad/ordenPago/GeneratePdf/idOrden/";
+                that.pdfComprobantes.push({
+                    'url': this.redirectRMT + redirect_orden + this.comprobantesPago.id_orden_pago + "/formato/" + model.tipo_formato,
                     'formato': model.tipo_formato
                 });
                 // this.redirect_pdf_comprobante = this.redirectRMT + "contabilidad/ordenPago/GeneratePdf/idOrden/" + this.comprobantesPago.id_orden_pago;
             } else {
-                this.pdfComprobantes.push({
-                    'url': this.redirectRMT + "contabilidad/ordenCompra/GeneratePdf/idOrden/" + this.comprobantesPago.id_orden_pago + "/formato/" + model.tipo_formato,
+                redirect_orden = "contabilidad/ordenCompra/GeneratePdf/idOrden/";
+                that.pdfComprobantes.push({
+                    'url': this.redirectRMT + redirect_orden + this.comprobantesPago.id_orden_pago + "/formato/" + model.tipo_formato,
                     'formato': model.tipo_formato
                 });
                 // this.redirect_pdf_comprobante = this.redirectRMT + "contabilidad/ordenCompra/GeneratePdf/idOrden/" + this.comprobantesPago.id_orden_pago;
             }
-            console.log(this.pdfComprobantes);
-            
+            that.pdfComprobantes.push({
+                'url': this.redirectRMT + redirect_orden + this.comprobantesPago.id_orden_pago + "/formato/orden",
+                'formato': 'orden'
+            });
+            // console.log(this.pdfComprobantes);
+
         },
         getPolizas() {
             this.loaderPoliza = true;
@@ -506,7 +529,12 @@ export default {
                         function (response) {
                             this.itemPolizas = response.data;
                             this.itemPolizas.fondo = parseFloat(this.itemPolizas.fondo) * (-1);
-                            this.comprobantesPago.importe = parseFloat(this.itemPolizas.fondo);
+                            var importePago = parseFloat(this.comprobantesPago.importe);
+                            var importeFondo = parseFloat(this.itemPolizas.fondo);
+                            if (importePago > importeFondo && importeFondo > 0) {
+                                this.comprobantesPago.importe = parseFloat(this.itemPolizas.fondo);
+                            }
+                            // this.comprobantesPago.importe = parseFloat(this.itemPolizas.fondo);
                             this.operacionesMath();
                         },
                         function () {
@@ -571,11 +599,18 @@ export default {
         },
         buscarAgenciaPagos() {
             this.loader = true;
-            var url = "";
-            if (this.pagar_a == 'agencia') {
-                url = "contabilidad/ordenPago/searchAll?agencia=" + this.id_agencia;
-            } else {
-                url = "contabilidad/ordenPago/searchAllHotel?hotel=" + this.model_hotel_selected.id_hotel;
+            var url = "contabilidad/ordenPago/searchAll";
+            switch (this.pagar_a) {
+                case 'hotel':
+                    url += "?hotel=" + this.model_hotel_selected.id_hotel;
+                    break;
+                case 'tour':
+                    url += "?tour=1";
+                    break;
+                case 'agencia':
+                default:
+                    url += "?agencia=" + this.id_agencia;
+                    break;
             }
             this.$http.get(this.redirectRMTApi + url).then(
                 function (response) {
@@ -709,7 +744,7 @@ export default {
                 'tipo_cambio': this.array_temp_producto.search.tipo_cambio,
                 'descripcion': this.array_temp_producto.search.descripcion,
             });
-            if (this.pagar_a == 'agencia') {
+            if (this.pagar_a == 'agencia' || this.pagar_a == 'tour') {
                 this.json_busqueda_prueba[0].agencia = this.array_temp_producto.search.agencia;
             } else if (this.pagar_a == 'hotel') {
                 this.json_busqueda_prueba[0].hotel = this.array_temp_producto.search.hotel;
@@ -799,8 +834,8 @@ export default {
                     'tipo_cambio': element.tipo_cambio,
                     'descripcion': element.descripcion,
                 });
-                if (this.pagar_a == 'agencia') {
-                    this.json_busqueda_prueba[index].agencia = this.nombre_agencia;
+                if (this.pagar_a == 'agencia' || this.pagar_a == 'tour') {
+                    this.json_busqueda_prueba[index].agencia = element.agencia ? element.agencia : this.nombre_agencia;
                 } else if (this.pagar_a == 'hotel') {
                     this.json_busqueda_prueba[index].hotel = this.nombre_hotel;
                 }
@@ -869,6 +904,12 @@ export default {
                     this.dialog = true;
                 }
             } else if (this.model_hotel_selected != null) {
+                this.buscarAgenciaPagos();
+                if (this.array_busqueda_agencia != []) {
+                    this.mostrarBotonBusqueda = false;
+                    this.dialog = true;
+                }
+            } else if (this.pagar_a == 'tour') {
                 this.buscarAgenciaPagos();
                 if (this.array_busqueda_agencia != []) {
                     this.mostrarBotonBusqueda = false;
@@ -1069,7 +1110,7 @@ export default {
         resetOrdenPago() {
             this.ordenPago = {
                 'id_agencia': this.id_agencia,
-                'id_hotel': this.id_hotel,
+                'id_hotel': (this.pagar_a == 'hotel') ? this.id_hotel : 0,
                 'importe_total': 0,
                 'observaciones': ''
             };
@@ -1099,6 +1140,10 @@ export default {
             this.comprobantesPago.efectivo_facturable = '0';
             this.importe_comision = 0;
             this.itemPolizas = [];
+            this.fondoInSuficiente = false;
+            if (this.comprobantesPago.id_tipo == "15") {
+                this.getPolizas();
+            }
             this.cuentas = this.apiForms.cuentas;
             this.operacionesMath();
         },
@@ -1147,6 +1192,7 @@ export default {
                                 'foto': element.foto,
                                 'subtitle': element.proveedor,
                             });
+                            // console.log(this.listaSelectHoteles)
                         }
                     });
                 }).catch(err => {
@@ -1161,36 +1207,42 @@ export default {
         cambioModulo() {
             // this.model_agencia_selected = null;
             // this.model_hotel_selected = null;
-            if (this.tipo_modulo == '1' && this.pagar_a == 'agencia') {
-                this.mostrarBotonBusqueda = false;
-                this.disabledTextField = true;
-            } else {
-                this.mostrarBotonBusqueda = true;
-                this.disabledTextField = false;
-            }
-            if (this.ultimo_importe_pagado > 0) {
-                this.dialog_reset_modulo = true;
-            } else {
+            if (typeof this.ordenPago.id_orden_pago == 'undefined' && typeof this.ordenPago.id_orden_compra == 'undefined') {
+                // console.log('reset');}
+                // console.log(this.ordenPago);
                 this.resetAllPage();
+            } else {
+                // console.log(this.ordenPago);
+                this.dialog_reset_modulo = true;
             }
         },
         cambioPagarA() {
             // this.model_agencia_selected = null;
             // this.model_hotel_selected = null;
-            if (this.ultimo_importe_pagado > 0) {
-                this.dialog_reset_modulo = true;
-            } else {
+
+            // console.log(this.ordenPago);
+            if (typeof this.ordenPago.id_orden_pago == 'undefined' && typeof this.ordenPago.id_orden_compra == 'undefined') {
+                // console.log('reset');
+                // console.log(this.ordenPago);
                 this.resetAllPage();
+            } else {
+                this.dialog_reset_modulo = true;
+                // console.log(this.ordenPago);
             }
-            if (this.tipo_modulo == '1' && this.pagar_a == 'hotel') {
+        },
+        resetAllPage() {
+            if (this.tipo_modulo == '1' && (this.pagar_a == 'hotel' || this.pagar_a == 'tour')) {
                 this.mostrarBotonBusqueda = true;
                 this.disabledTextField = false;
             } else {
                 this.mostrarBotonBusqueda = false;
                 this.disabledTextField = true;
             }
-        },
-        resetAllPage() {
+
+            if (this.tipo_modulo == '0') {
+                this.mostrarBotonBusqueda = true;
+                this.disabledTextField = true;
+            }
             this.agencia_pagar_orden = false;
             this.saldo_a_favor = false;
             this.comprobantesPago = {
@@ -1249,6 +1301,14 @@ export default {
             }
             return title;
         },
+        searchAll() {
+            // var that = this;
+            // return Object.values(that.array_busqueda_agencia.Reservas).filter((reserva) => {
+            //     if (typeof reserva.identificador !== 'undefined') {
+            //         return reserva.identificador.toLowerCase().includes(that.filtrarTexto.toLowerCase());  
+            //     }
+            // })
+        }
     },
     watch: {
         // search(val) {
