@@ -123,6 +123,10 @@ Vue.use(money,{ decimal: '.', thousands: ',', prefix: '$ ', precision: 2 })
 
 Vue.baseUrl = Vue.prototype.baseUrl = "https://rutamayatravel.com/sur45/";
 Vue.sur4 = Vue.prototype.sur4 = "sur45/admin/";
+
+// Vue.baseUrl = Vue.prototype.baseUrl = "https://rutamayatravel.com/sur4/";
+// Vue.sur4 = Vue.prototype.sur4 = "sur4/admin/";
+
 Vue.redirectRMT = Vue.prototype.redirectRMT = "https://rutamayatravel.com/" + Vue.sur4;
 Vue.redirectRMTApi = Vue.prototype.redirectRMTApi = "https://www.rutamayatravel.com/" + Vue.sur4;
 Vue.$formatDate = Vue.prototype.$formatDate = function(date){

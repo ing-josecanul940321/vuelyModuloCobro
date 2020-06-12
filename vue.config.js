@@ -3,6 +3,7 @@ const webpack = require('webpack');
 
 module.exports = {
   publicPath: process.env.NODE_ENV == 'production' ? '/vuely/' :  '/vuely',
+  // publicPath: process.env.NODE_ENV == 'production' ? '/surcaja/' :  '/vuely',
   css: {
       sourceMap: true
   },

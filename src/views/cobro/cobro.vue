@@ -28,9 +28,10 @@
               <v-radio-group v-model="pagar_a" row @change="cambioPagarA();">
                 <v-radio label="Agencia" color="primary" value="agencia"></v-radio>
                 <v-radio label="Hotel" color="primary" value="hotel"></v-radio>
+                <v-radio label="Tour" color="primary" value="tour"></v-radio>
               </v-radio-group>
             </v-col>
-            <v-col cols="10" md="5">
+            <v-col cols="10" md="5" v-show="pagar_a !== 'tour'">
               <auto-complete
                 v-show="pagar_a == 'agencia'"
                 v-model="model_lista_agencias"
@@ -80,7 +81,7 @@
                 </template>
               </v-autocomplete>-->
             </v-col>
-            <v-col cols="2" md="2">
+            <v-col cols="2" :md="(tipo_modulo == '0') ? '2' : '1'">
               <v-tooltip top>
                 <template v-slot:activator="{ on }">
                   <v-btn
@@ -133,8 +134,7 @@
         >
           <v-card>
             <v-toolbar dark color="pink">
-              <v-toolbar-title v-show="pagar_a == 'agencia'">{{nombre_agencia}} - ID: {{id_agencia}}</v-toolbar-title>
-              <v-toolbar-title v-show="pagar_a == 'hotel'">{{nombre_hotel}} - ID: {{id_hotel}}</v-toolbar-title>
+              <v-toolbar-title>{{ pagar_a == 'agencia' ? nombre_agencia + ' - ID: ' + id_agencia : (pagar_a == 'hotel') ? nombre_hotel + ' - ID: ' + id_hotel : 'Tours' }}</v-toolbar-title>
               <v-spacer></v-spacer>
               <v-toolbar-items>
                 <v-btn
@@ -147,7 +147,7 @@
                 </v-btn>
               </v-toolbar-items>
             </v-toolbar>
-            <v-container>
+            <v-container style="padding-bottom:0px;">
               <p>
                 SALDO SELECCIONADO:
                 <b>$ {{$RMT.formatoPrecio(total_saldo2)}}</b>
@@ -161,15 +161,32 @@
                   :disabled="precios.length == 0"
                 >Agregar al pago</v-btn>
               </p>
+              <!-- <v-col md="4">
+                <v-text-field label="Buscar" prepend-inner-icon="search" v-model="filtrarTexto"></v-text-field>
+              </v-col> -->
             </v-container>
             <v-container v-show="loader == true">
               <!-- Loaders -->
               <h2>RESERVAS</h2>
               <v-skeleton-loader class="mx-auto" max-width="auto" type="table" :tile="false"></v-skeleton-loader>
-              <h2>{{ pagar_a == 'agencia' ? 'GRUPOS Y BODAS' : 'GRUPOS, BODAS Y BLOQUEOS' }}</h2>
-              <v-skeleton-loader class="mx-auto" max-width="auto" type="table" :tile="false"></v-skeleton-loader>
-              <h2>BLOQUEOS</h2>
-              <v-skeleton-loader class="mx-auto" max-width="auto" type="table" :tile="false"></v-skeleton-loader>
+              <h2
+                v-show="this.pagar_a !== 'tour'"
+              >{{ pagar_a == 'agencia' ? 'GRUPOS Y BODAS' : 'GRUPOS, BODAS Y BLOQUEOS' }}</h2>
+              <v-skeleton-loader
+                v-show="this.pagar_a !== 'tour'"
+                class="mx-auto"
+                max-width="auto"
+                type="table"
+                :tile="false"
+              ></v-skeleton-loader>
+              <h2 v-show="this.pagar_a !== 'tour'">BLOQUEOS</h2>
+              <v-skeleton-loader
+                v-show="this.pagar_a !== 'tour'"
+                class="mx-auto"
+                max-width="auto"
+                type="table"
+                :tile="false"
+              ></v-skeleton-loader>
               <!-- <v-sheet color="grey" class="pa-0">
               </v-sheet>-->
             </v-container>

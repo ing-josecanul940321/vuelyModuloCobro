@@ -45,6 +45,19 @@ export default {
   methods: {
     handleInput(e) {
       this.$emit("input", e);
+    },
+    getLista(item, queryText) {
+      // console.log(item);
+      // console.log(queryText);
+      // var search = queryText.split(" ");
+      // var bandera = false;
+      // lista = item.nombre.toLowerCase().includes(queryText.toLowerCase());
+      // search.forEach(palabra => {
+      //   if (item.nombre.toLowerCase().includes(palabra.toLowerCase())) {
+      //       bandera = true;
+      //     }
+      // });
+      return item.nombre.toLowerCase().includes(queryText.toLowerCase());
     }
   },
   watch: {

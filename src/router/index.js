@@ -9,6 +9,7 @@ import notificaciones from './imports/notificaciones';
 import cobros from './imports/cobro';
 import comprobantesIngresos from './comprobantesIngresos';
 import ordenesPago from './ordenesPago';
+import ordenesCompra from './ordenesCompra';
 import comprobantesPago from './comprobantesPago'; 
 import catalogoCuentas from './catalogoCuentas';
 import polizas from './polizas';
@@ -18,6 +19,7 @@ Vue.use(Router)
 export default new Router({
 	mode: 'history',
 	base: '/vuely', // add here your sub-directory name
+	// base: '/surcaja', // add here your sub-directory name
 	routes: [
 		// defaultRoutes,
 		bodasgrupos,
@@ -27,6 +29,7 @@ export default new Router({
 		cobros,
 		comprobantesIngresos,
 		ordenesPago,
+		ordenesCompra,
 		comprobantesPago,
 		catalogoCuentas,
 		polizas

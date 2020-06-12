@@ -4,12 +4,12 @@ export default {
   notifications: 'Notificaciones',
   logOut: 'Añadir',
   inbox: 'Bandeja de entrada',
-  usersList: 'Lista de usuarios', 
+  usersList: 'Lista de usuarios',
   userProfile: 'Perfil del usuario',
   search: 'Buscar',
   close: 'Cerca',
-  fullScreen: 'Pantalla completa', 
-  reload: 'Recargar', 
+  fullScreen: 'Pantalla completa',
+  reload: 'Recargar',
   //BODAS y GRUPOS
   gruposYbodas: "Grupos / Bodas",
   //PAGOS
@@ -27,14 +27,17 @@ export default {
   //Comprobantes
   consultaIngresos: "Ingreso/Agencias",
 
-   // ordenes de pago
-   ordenesPago: "Ordenes de Pago",
+  // ordenes de pago
+  ordenesPago: "Ordenes de Pago",
 
-   // Comprobantes de pago
-   comprobantesPago: "Comprobantes de Pago",
- 
-   // Catalogo de cuentas
-   catalogoCuentas: "Catálogo de Cuentas",
+  // ordenes de pago
+  ordenesCompra: "Ordenes de Compra",
+
+  // Comprobantes de pago
+  comprobantesPago: "Comprobantes de Pago",
+
+  // Catalogo de cuentas
+  catalogoCuentas: "Catálogo de Cuentas",
 
   //  
   polizas: "Pólizas",
@@ -43,7 +46,7 @@ export default {
   agencias: "Agencias",
   llamadas: "Registro de llámadas",
   resumen: "Resumen",
-  vistaGrid:"Vista Cuadrícula",
+  vistaGrid: "Vista Cuadrícula",
   vistaList: "Lista de Grupos/Bodas",
   bodasygrupos: "Grupos y Bodas"
 }

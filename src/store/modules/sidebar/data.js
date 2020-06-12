@@ -66,6 +66,15 @@ export const menus = {
 			label:'Old'
 		},
 		{
+			action: 'fas fa-file-alt',
+			title: 'message.ordenesCompra',
+			active: false,
+			items: null,
+			path: '/ordenesCompra',
+			exact: true,
+			label:'Old'
+		},
+		{
 			action: 'fas fa-file-invoice-dollar',
 			title: 'message.comprobantesPago',
 			active: false,
