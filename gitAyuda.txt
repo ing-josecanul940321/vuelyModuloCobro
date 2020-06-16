@@ -1,0 +1,80 @@
+C:\Users\CanulJose>git --version
+git version 2.26.0.windows.1
+
+C:\Users\CanulJose>git config --global user.name 'Jose Canul'
+
+C:\Users\CanulJose>git config user.name
+'Jose
+
+C:\Users\CanulJose>git config --global user.name "Jose Canul"
+
+C:\Users\CanulJose>git config user.name
+Jose Canul
+
+C:\Users\CanulJose>git config --global user.email "josecanutl21@gmail.com"
+
+C:\Users\CanulJose>git config --global color.ui true
+
+C:\Users\CanulJose>
+
+
+************************************
+** siempre es doble comilla en los strings ""
+.gitignore : poner todos los archivos que git va ignorar
+
+git init : iniciar un repositorio
+git status : el estado de los cambios
+git add index.html : agrega temporalmente al repositorio esperando hacer un commit, normalmente es cuando se hizo un cambio en un archivo
+git add . : agrega temporalmente al repositorio esperando hacer un commit, esto es cuando se edito mas de un archivo
+git commit -m "Commit message" : hacer commit
+git rm --cached index.html : eliminar de la zona temporal un archivo
+git log : Mostrara todos los commit que se ha hecho detallado
+git log --stat : mostrara mas a detalle los commit, que y cuantos archivos fueron modificados
+git log --oneline : historial de los commits (commits con su identificador)
+git diff : diferencias entre el commit pasado con los nuevos cambios que agregaste
+git diff 5ere34 index.html : cual es la diferencia entre un cierto commit identificado por su id con algun archivo reciente que se cambio
+git checkout 5ere34 : regresar a una version commit anterior por el identificador del commit (tener mucho cuidado)
+git brach : mostrar las ramas incluido el master (principal) y donde esta el proyecto actualmente
+git checkout <nombre-rama> : va cambiar el proyecto al proyecto con el nombre puesto, eso incluye cambiar todo los cambios hechos en el proyecto actual al proyecto swicheado (mucho cuidado)
+git checkout -b <nombre-rama> : crear una rama (duplicar el proyecto)
+git merge <nombre-rama> : actualiza la rama master(principal) con la rama seleccionada
+git branch -d <nombre-rama> : eliminamos la rama
+
+git remote add origin <url> : agregar una url para subirlo a git en un nombre llamado origin(puede cambiarse el nombre)
+git remote -v : ver las url remotas
+git push -u origin master : subir el proyecto o la rama <master> a la url <origin>
+
+git pull origin master : descarga todos los cambios (si hay) de la pagina del proyecto git a la computadora
+
+**** si ocurre un error lo mas seguro es que tenga que hacer estos pasos****
+-- git status
+-- git commit -m
+-- git pull origin master
+
+git fetch origin master : descarga cambios pero no se fusiona al proyecto de la computadora, se crea un nuevo branch
+git merge origin/master : fusionamos el proyecto descargado con el proyecto local
+
+***** subir actualizacion al repositorio web o remoto
+***** recomendable crear una rama para no afectar a la rama master
+
+git push origin <brach> : sube la rama al repositorio remoto, prueba que todo esta correcto y al momento de fusionarlo a la rama master
+git checkout master : nos cambiamos a la rama master
+git merge <rama_a_fusionar> : fusiona la rama master a rama_seleccionada 
+git push origin master : cuando fusionemos ya es hora de subirlo al servidor
+
+
+********
+git rm -r --cached . : borrar la caché de todos los ficheros de git
+
+
+******************
+fork : duplicar un proyecto y lo va asignar a tu perfil de git
+git clone url : descarga el proyecto a la computadora
+
+generar claves ssh para vincular cuenta git con tu computadora para trabajar
+https://help.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent
+
+Links
+https://rogerdudler.github.io/git-guide/index.es.html
+https://david-estevez.gitbooks.io/the-git-the-bad-and-the-ugly/content/es/trabajando-con-ramas.html
+https://medium.com/@albertcito/gitignore-no-funciona-131049573412

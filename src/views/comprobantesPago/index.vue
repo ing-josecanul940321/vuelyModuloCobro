@@ -48,7 +48,7 @@
                         target="_blank"
                         style="color:black; padding-right:5px;"
                       >
-                        <v-icon>fas fa-file-alt</v-icon>
+                        <v-icon>fas fa-file-export</v-icon>
                       </a>
                     </template>
                     <span>Facturar Comprobante</span>
@@ -241,7 +241,7 @@ export default {
         { text: "Tipo de Pago", value: "descripcion", sortable: true },
         { text: "Importe", value: "importe", sortable: true },
         { text: "Fecha Creación", value: "log", sortable: true },
-        { text: "Agencia", value: "nombre_agencia", sortable: true },
+        { text: "Para", value: "nombre_agencia", sortable: true },
         { text: "Usuario Elaboró", value: "nombre_usuario", sortable: true },
         { text: "% Comisión", value: "comision", sortable: true },
         { text: "Formato", value: "tipo_formato", sortable: true },
