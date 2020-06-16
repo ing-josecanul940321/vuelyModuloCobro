@@ -359,7 +359,7 @@
                     </span>
                   </v-tooltip>
                 </td>
-                <td v-if="pagar_a == 'agencia' && tipo_modulo == '1'">
+                <td>
                   <div v-show="!showingEdit" @click="showingEdit = true;">{{data.descripcion}}</div>
                   <div v-show="showingEdit">
                     <v-text-field
@@ -369,7 +369,7 @@
                     />
                   </div>
                 </td>
-                <td v-else>{{data.descripcion}}</td>
+                <!-- <td v-else>{{data.descripcion}}</td> -->
                 <td
                   style="width: 200px !important; text-align:right !important"
                   v-show="!switchInput"
@@ -867,12 +867,12 @@
         <v-card-actions>
           <v-spacer></v-spacer>
 
-          <v-btn color="green darken-1" text @click="dialog_reset_modulo = false">Cancelar</v-btn>
+          <v-btn color="green darken-1" text @click="dialog_reset_modulo = false; NoCancelarOrdenPendiente()">Cancelar</v-btn>
 
           <v-btn
             color="green darken-1"
             text
-            @click="dialog_reset_modulo = false; resetAll();"
+            @click="dialog_reset_modulo = false; resetAllPage();"
           >Aceptar</v-btn>
         </v-card-actions>
       </v-card>

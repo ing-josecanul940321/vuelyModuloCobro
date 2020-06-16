@@ -165,7 +165,9 @@ export default {
             model_lista_hoteles: null,
             dialog_reset_modulo: false,
             pdfComprobantes: [],
-            filtrarTexto: ''
+            filtrarTexto: '',
+            botonAntesModulo: '',
+            botonAntesPagarA: ''
 
         }
     },
@@ -266,6 +268,8 @@ export default {
 
         },
         ordenDePago() {
+            this.botonAntesModulo = this.tipo_modulo;
+            this.botonAntesPagarA = this.pagar_a;
             // console.log('crea orden');
             var tipo_orden = '',
                 url = '';
@@ -1268,6 +1272,10 @@ export default {
             this.total_saldo_usd_aux = 0;
             this.ultimo_comprobante_pago = [];
             this.ultimo_importe_pagado = 0;
+        },
+        NoCancelarOrdenPendiente(){
+            this.tipo_modulo = this.botonAntesModulo;
+            this.pagar_a = this.botonAntesPagarA;
         }
     },
     computed: {
