@@ -83,18 +83,24 @@
           <v-card>
             <v-card-title>
               <v-row>
-                <v-col>
+                <v-col cols="col-12">
                   <span class="headline">Orden: #{{ folio_orden_pago }}</span>
                 </v-col>
-                <v-spacer></v-spacer>
-                <!-- <v-col
-                  v-show="editItemOrden.estatus != 'C' && editItemOrden.estatus != 'PA'"
-                  class="text-right"
-                >
-                  <v-btn class="ma-2" color="red" dark @click="confirmRemoveDetalle(null)">
-                    <v-icon dark left>mdi-cancel</v-icon>Cancelar Orden
+                <!-- <v-spacer></v-spacer> -->
+                <v-col class="col-12">
+                  <v-btn
+                    v-show="editItemOrden.estatus != 'C' && editItemOrden.estatus != 'PA'"
+                    class="ma-2"
+                    color="red"
+                    dark
+                    @click="confirmRemoveDetalle(null)"
+                  >
+                    <v-icon dark left>mdi-cancel</v-icon>Cancelar
                   </v-btn>
-                </v-col> -->
+                  <v-btn class="ma-2" color="success" dark @click="clickActualizarOrden()">
+                    <v-icon dark left>mdi-check</v-icon>Actualizar
+                  </v-btn>
+                </v-col>
               </v-row>
             </v-card-title>
             <v-card-text>
@@ -171,21 +177,33 @@
                         >{{ props.item.identificador }}</a>
                       </span>
                     </td>
-                    <!-- <td v-show="showDescription == false" @click="showDescription = true;"> -->
-                    <td>
+                    <td v-show="showDescription == false" @click="showDescription = true;">
+                      <!-- <td> -->
                       {{ props.item.descripcion }}
                     </td>
-                    <!-- <td v-show="showDescription == true">
+                    <td v-show="showDescription == true">
                       <v-text-field
-                      v-model.lazy="props.item.descripcion"
-                      @keyup.enter="showDescription = false; $emit('update');"
-                      autofocus
-                    />
-                    </td> -->
+                        v-model.lazy="props.item.descripcion"
+                        @keyup.enter="showDescription = false; $emit('update');"
+                        autofocus
+                      />
+                    </td>
                     <td>{{ props.item.tipo_producto }}</td>
-                    <td class="text-right">$ {{ $RMT.formatoPrecio(props.item.importe) }}</td>
+                    <td v-show="!changePrice" @click="changePrice = true;" class="text-right">$ {{ $RMT.formatoPrecio(props.item.importe) }}</td>
+                    <td
+                      style="width: 200px !important; text-align:right !important"
+                      v-show="changePrice"
+                    >
+                      <v-text-field
+                        prefix="$"
+                        v-model.lazy="props.item.importe"
+                        suffix="MX"
+                        @keyup.enter="changePrice = false; $emit('update');"
+                        autofocus
+                      />
+                    </td>
                     <td>
-                      <!-- <v-btn
+                      <v-btn
                         v-show="editItemOrden.estatus !== 'C' && editItemOrden.estatus !== 'PA' && array_detalles.length > 1"
                         class="ma-2"
                         text
@@ -194,7 +212,7 @@
                         @click="confirmRemoveDetalle(props.item)"
                       >
                         <v-icon>fas fa-window-close</v-icon>
-                      </v-btn> -->
+                      </v-btn>
                     </td>
                   </tr>
                 </template>
@@ -773,6 +791,7 @@ export default {
       fondoInSuficiente: false,
       pdfComprobantes: [],
       showDescription: false,
+      changePrice: false
     };
   },
   created() {
@@ -915,6 +934,11 @@ export default {
           "Estas a punto de eliminar un detalle de la orden. Esta acción es irreversible. Si se detecta saldo a favor, se agregará a la cuenta de fondo del agencia.";
       }
     },
+    clickActualizarOrden(){
+      var nuevoImporte = this.sumaNuevoImporte();
+      this.editItemOrden.importe_total = nuevoImporte;
+      this.actualizarItem();
+    },
     removeItemDetalle() {
       this.deleteItemTablaDetalles();
       var nuevoImporte = this.sumaNuevoImporte();
@@ -927,8 +951,7 @@ export default {
     },
     actualizarItem() {
       var agregaCuenta = false;
-      console.log(this.editItemOrden.importe_total);
-
+      // console.log(this.editItemOrden.importe_total);
       if (
         parseFloat(
           parseFloat(this.saldo_actual) > this.editItemOrden.importe_total
@@ -1290,14 +1313,28 @@ export default {
         .get(
           this.redirectRMTApi +
             "contabilidad/comprobantesPago/ObtenerOrdenComprobantes/item/" +
-            item + "/tipo/agencia"
+            item +
+            "/tipo/agencia"
         )
         .then(
           function(response) {
             var respuesta = response.body;
-            window.open(this.redirectRMT + "contabilidad/ordenPago/GeneratePdf/idOrden/" + item + "/formato/orden", '_blank');
-            respuesta.forEach((pdf) => {
-              window.open(this.redirectRMT + "contabilidad/ordenPago/GeneratePdf/idOrden/" + item + "/formato/" + pdf.tipo_formato, '_blank');
+            window.open(
+              this.redirectRMT +
+                "contabilidad/ordenPago/GeneratePdf/idOrden/" +
+                item +
+                "/formato/orden",
+              "_blank"
+            );
+            respuesta.forEach(pdf => {
+              window.open(
+                this.redirectRMT +
+                  "contabilidad/ordenPago/GeneratePdf/idOrden/" +
+                  item +
+                  "/formato/" +
+                  pdf.tipo_formato,
+                "_blank"
+              );
             });
           },
           function() {
