@@ -810,7 +810,7 @@ export default {
                     id = identificador.replace('G', '');
                     break;
                 case 'Boda':
-                    id = identificador.replace('B', '');
+                    id = identificador.replace('W', '');
                     break;
                 case 'Actividad':
                     id = identificador.replace('A', '');
@@ -1049,7 +1049,7 @@ export default {
                         link = this.redirectRMT + 'bloqueos/view/id/' + id;
                         break;
                     case 'Boda':
-                        id = identificador.replace('B', '');
+                        id = identificador.replace('W', '');
                         title = 'Boda';
                         link = this.redirectRMT + 'bloqueos/view/id/' + id;
                         break;
@@ -1082,7 +1082,9 @@ export default {
         showMetodoPago(item) {
             if (item == '15' && (this.es_cuenta_fondo == true || this.tipo_modulo == '1')) {
                 return false;
-            } else {
+            } else if(item == '10' && this.tipo_modulo == '0' && (this.pagar_a == 'agencia' || this.pagar_a == 'tour')) {
+                return false;
+            }else {
                 return true;
             }
         },

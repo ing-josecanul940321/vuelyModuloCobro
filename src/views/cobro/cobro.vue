@@ -194,7 +194,7 @@
               <v-row>
                 <v-col md="12" v-if="cont_reservas > 2">
                   <h2>RESERVAS</h2>
-                  <v-simple-table :fixed-header="true" height="200">
+                  <v-simple-table :fixed-header="true">
                     <template v-slot:default>
                       <thead>
                         <tr>
@@ -233,7 +233,7 @@
                 </v-col>
                 <v-col md="12" v-if="cont_grupoboda > 2">
                   <h2>{{ pagar_a == 'agencia' ? 'GRUPOS Y BODAS' : 'GRUPOS, BODAS Y BLOQUEOS' }}</h2>
-                  <v-simple-table :fixed-header="true" height="200">
+                  <v-simple-table :fixed-header="true">
                     <template v-slot:default>
                       <thead>
                         <tr>
@@ -283,7 +283,7 @@
                 </v-col>
                 <v-col md="12" v-if="cont_bloqueos > 2">
                   <h2>BLOQUEOS</h2>
-                  <v-simple-table :fixed-header="true" height="200">
+                  <v-simple-table :fixed-header="true">
                     <template v-slot:default>
                       <thead>
                         <tr>
@@ -646,7 +646,7 @@
                   item-value="id_banco"
                   item-text="nombre"
                   label="Banco"
-                  :rules="(comprobantesPago.id_tipo == 8 || comprobantesPago.id_tipo == 9) ? bancoRules : []"
+                  :rules="(comprobantesPago.id_tipo !== 1 || comprobantesPago.id_tipo !== 15) ? bancoRules : []"
                   @change="buscaCuentaBanco()"
                 ></v-select>
               </v-col>
@@ -674,7 +674,7 @@
                   label="Cuenta"
                   no-data-text="No se encontró cuentas para el banco seleccionado"
                   @change="comisionBancaria()"
-                  :rules="(comprobantesPago.id_tipo == 8 || comprobantesPago.id_tipo == 9) ? bancoRules : []"
+                  :rules="(comprobantesPago.id_tipo !== 1 || comprobantesPago.id_tipo !== 15) ? bancoRules : []"
                 ></v-select>
               </v-col>
               <v-col
