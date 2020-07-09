@@ -78,3 +78,4 @@ Links
 https://rogerdudler.github.io/git-guide/index.es.html
 https://david-estevez.gitbooks.io/the-git-the-bad-and-the-ugly/content/es/trabajando-con-ramas.html
 https://medium.com/@albertcito/gitignore-no-funciona-131049573412
+https://www.adictosaltrabajo.com/2010/07/12/git/
