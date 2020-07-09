@@ -88,7 +88,7 @@
                 </v-col>
                 <!-- <v-spacer></v-spacer> -->
                 <v-col class="col-12">
-                  <v-btn
+                  <!-- <v-btn
                     v-show="editItemOrden.estatus != 'C' && editItemOrden.estatus != 'PA'"
                     class="ma-2"
                     color="red"
@@ -96,10 +96,10 @@
                     @click="confirmRemoveDetalle(null)"
                   >
                     <v-icon dark left>mdi-cancel</v-icon>Cancelar
-                  </v-btn>
-                  <v-btn class="ma-2" color="success" dark @click="clickActualizarOrden()">
+                  </v-btn> -->
+                  <!-- <v-btn class="ma-2" color="success" dark @click="clickActualizarOrden()">
                     <v-icon dark left>mdi-check</v-icon>Actualizar
-                  </v-btn>
+                  </v-btn> -->
                 </v-col>
               </v-row>
             </v-card-title>
@@ -896,7 +896,7 @@ export default {
           prefijo = "G" + identificador;
           break;
         case "Boda":
-          prefijo = "B" + identificador;
+          prefijo = "W" + identificador;
           break;
         default:
           prefijo = identificador;

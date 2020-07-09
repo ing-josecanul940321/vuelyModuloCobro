@@ -867,7 +867,7 @@ export default {
           prefijo = "G" + identificador;
           break;
         case "Boda":
-          prefijo = "B" + identificador;
+          prefijo = "W" + identificador;
           break;
         default:
           prefijo = identificador;
