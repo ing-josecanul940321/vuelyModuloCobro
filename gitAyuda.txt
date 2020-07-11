@@ -67,6 +67,38 @@ git push origin master : cuando fusionemos ya es hora de subirlo al servidor
 git rm -r --cached . : borrar la caché de todos los ficheros de git
 
 
+*******
+Error con merge al descargar cambios e intentar fusionar
+
+git merge origin/master
+
+error: Your local changes to the following files would be overwritten by merge:
+        package-lock.json
+        package.json
+Please commit your changes or stash them before you merge.
+Aborting
+Updating 4ad1b91..bea783a
+
+
+Auto-merging package-lock.json
+CONFLICT (content): Merge conflict in package-lock.json
+Automatic merge failed; fix conflicts and then commit the result.
+
+Solución 
+
+git add .
+
+git stash
+
+git stash pop
+
+git add .
+
+git commit -m ""
+
+git status
+
+
 ******************
 fork : duplicar un proyecto y lo va asignar a tu perfil de git
 git clone url : descarga el proyecto a la computadora
