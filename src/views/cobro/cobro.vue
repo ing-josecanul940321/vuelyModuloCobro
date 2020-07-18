@@ -624,7 +624,7 @@
               <v-col
                 cols="12"
                 md="6"
-                v-show="comprobantesPago.id_tipo == '2' || comprobantesPago.id_tipo == '6' || comprobantesPago.id_tipo == '7'"
+                v-show="comprobantesPago.id_tipo == '2' || comprobantesPago.id_tipo == '6' || comprobantesPago.id_tipo == '7' || comprobantesPago.id_tipo == '10'"
               >
                 <v-text-field v-model="comprobantesPago.referencia" label="Referencia"></v-text-field>
               </v-col>
