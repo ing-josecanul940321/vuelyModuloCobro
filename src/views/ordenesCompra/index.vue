@@ -94,12 +94,21 @@
                 </v-col>
                 <v-spacer></v-spacer>
                 <v-col
-                  v-show="editItemOrden.estatus != 'C' && editItemOrden.estatus != 'PA'"
+                  v-show="editItemOrden.estatus != 'C' && (editItemOrden.estatus != 'PA' || fechaHoy(editItemOrden.log)==true)"
                   class="text-right"
                 >
-                  <!-- <v-btn class="ma-2" color="red" dark @click="confirmRemoveDetalle(null)">
-                    <v-icon dark left>mdi-cancel</v-icon>Cancelar Orden
-                  </v-btn>-->
+                  <v-btn class="ma-2" color="red" dark @click="confirmRemoveDetalle(null)">
+                    <v-icon dark left>mdi-cancel</v-icon>Cancelar
+                  </v-btn>
+                  <v-btn
+                    v-show="editItemOrden.estatus != 'C' && editItemOrden.estatus != 'PA'"
+                    class="ma-2"
+                    color="success"
+                    dark
+                    @click="clickActualizarOrden()"
+                  >
+                    <v-icon dark left>mdi-check</v-icon>Actualizar
+                  </v-btn>
                 </v-col>
               </v-row>
             </v-card-title>
@@ -159,19 +168,39 @@
                         >B{{ props.item.identificador }}</a>
                       </span>
                     </td>
-                    <!-- <td v-show="showDescription == false" @click="showDescription = true;"> -->
-                    <td>{{ props.item.descripcion }}</td>
-                    <!-- <td v-show="showDescription == true">
+                    <!-- <td>{{ props.item.descripcion }}</td> -->
+                    <td
+                      v-show="showDescription == false"
+                      @click="showDescription = true;"
+                    >{{ props.item.descripcion }}</td>
+                    <td v-show="showDescription == true">
                       <v-text-field
-                      v-model.lazy="props.item.descripcion"
-                      @keyup.enter="showDescription = false; $emit('update');"
-                      autofocus
-                    />
-                    </td>-->
+                        v-model.lazy="props.item.descripcion"
+                        @keyup.enter="showDescription = false; $emit('update');"
+                        autofocus
+                      />
+                    </td>
                     <td>{{ props.item.tipo_producto }}</td>
-                    <td class="text-right">$ {{ $RMT.formatoPrecio(props.item.importe) }}</td>
+                    <td
+                      v-show="!changePrice"
+                      @click="changePrice = true;"
+                      class="text-right"
+                    >$ {{ $RMT.formatoPrecio(props.item.importe) }}</td>
+                    <td
+                      style="width: 200px !important; text-align:right !important"
+                      v-show="changePrice"
+                    >
+                      <v-text-field
+                        prefix="$"
+                        v-model.lazy="props.item.importe"
+                        suffix="MX"
+                        @keyup.enter="changePrice = false; $emit('update');"
+                        autofocus
+                      />
+                    </td>
+                    <!-- <td class="text-right">$ {{ $RMT.formatoPrecio(props.item.importe) }}</td> -->
                     <td>
-                      <!-- <v-btn
+                      <v-btn
                         v-show="editItemOrden.estatus !== 'C' && editItemOrden.estatus !== 'PA' && array_detalles.length > 1"
                         class="ma-2"
                         text
@@ -180,7 +209,7 @@
                         @click="confirmRemoveDetalle(props.item)"
                       >
                         <v-icon>fas fa-window-close</v-icon>
-                      </v-btn>-->
+                      </v-btn>
                     </td>
                   </tr>
                 </template>
@@ -498,6 +527,7 @@
                   label="Importe con Comisión"
                   readonly
                   prefix="$"
+                  suffix="MX"
                 ></v-text-field>
               </v-col>
               <v-col cols="12" md="6">
@@ -759,7 +789,8 @@ export default {
       // ################################## Fin Atributos de modal
       fondoInSuficiente: false,
       pdfComprobantes: [],
-      showDescription: false
+      showDescription: false,
+      changePrice: false
     };
   },
   created() {
@@ -892,7 +923,7 @@ export default {
           this.editItemOrden.id_orden_compra +
           "?";
         this.mensaje_confirmacion_body =
-          "Estas a punto de cancelar la orden. Esta acción es irreversible. Si se detecta saldo a favor, se agregará a la cuenta de fondo del agencia.";
+          "Estas a punto de cancelar la orden. Esta acción es irreversible.";
       } else {
         this.itemEliminar = item;
         this.idEliminar = this.prefijoIdentificador(
@@ -904,6 +935,11 @@ export default {
         this.mensaje_confirmacion_body =
           "Estas a punto de eliminar un detalle de la orden. Esta acción es irreversible. Si se detecta saldo a favor, se agregará a la cuenta de fondo del agencia.";
       }
+    },
+    clickActualizarOrden() {
+      var nuevoImporte = this.sumaNuevoImporte();
+      this.editItemOrden.importe_total = nuevoImporte;
+      this.actualizarItem();
     },
     removeItemDetalle() {
       this.deleteItemTablaDetalles();
@@ -1378,6 +1414,14 @@ export default {
       } else {
         return true;
       }
+    },
+    fechaHoy(log) {
+      var bandera = false;
+
+      if (moment(log).format("DD/MM/YYYY") == moment().format("DD/MM/YYYY")) {
+        bandera = true;
+      }
+      return bandera;
     },
     resetCampos() {
       // if (this.comprobantesPago.id_tipo !== "15" && this.ultimo_importe_pagado > 0) {
