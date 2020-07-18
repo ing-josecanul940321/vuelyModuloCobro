@@ -50,8 +50,8 @@ export default {
     getLista(item, queryText) {
       var search = queryText.split(" ");
       var totalPalabras = search.length;
-
-      var bandera = false;
+      
+      // var bandera = false;
       var cont = 0;
       var hotel = item.nombre.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); //quitar tildes y ñ
       search.forEach(palabra => {
@@ -63,11 +63,11 @@ export default {
         }
       });
       if (cont == totalPalabras) {
-        bandera = true;
+        // bandera = true;
       }
 
-      // return item.nombre.toLowerCase().includes(queryText.toLowerCase());
-      return bandera;
+      return item.nombre.toLowerCase().includes(queryText.toLowerCase());
+      // return bandera;
     }
   },
   watch: {

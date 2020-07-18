@@ -25,6 +25,20 @@
                   >{{ props.item.id_comprobante_pago }}</a>
                 </td>
                 <td>{{ props.item.descripcion }}</td>
+                <td>
+                  <v-tooltip top>
+                    <template v-slot:activator="{ on }">
+                      <a
+                        v-on="on"
+                        :href="redirectRMT + 'contabilidad/' + (props.item.tipo == 'Orden de Pago' ? 'ordenPago' : 'ordenCompra') + '/GeneratePdf/idOrden/' + props.item.id_orden_pago + '/formato/orden'"
+                        target="_blank"
+                      >
+                        {{props.item.id_orden_pago}}
+                      </a>
+                    </template>
+                    <span>{{props.item.tipo}}</span>
+                  </v-tooltip>
+                </td>
                 <td class="text-right">$ {{ $RMT.formatoPrecio(props.item.importe) }}</td>
                 <td class="text-center">{{ formatDate(props.item.log) }}</td>
                 <td>{{ props.item.nombre_agencia }}</td>
@@ -239,6 +253,7 @@ export default {
           sortable: true
         },
         { text: "Tipo de Pago", value: "descripcion", sortable: true },
+        { text: "Orden", value: "tipo", sortable: true },
         { text: "Importe", value: "importe", sortable: true },
         { text: "Fecha Creación", value: "log", sortable: true },
         { text: "Para", value: "nombre_agencia", sortable: true },

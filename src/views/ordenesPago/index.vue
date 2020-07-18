@@ -88,18 +88,24 @@
                 </v-col>
                 <!-- <v-spacer></v-spacer> -->
                 <v-col class="col-12">
-                  <!-- <v-btn
-                    v-show="editItemOrden.estatus != 'C' && editItemOrden.estatus != 'PA'"
+                  <v-btn
+                    v-show="editItemOrden.estatus != 'C' && (editItemOrden.estatus != 'PA' || fechaHoy(editItemOrden.log)==true)"
                     class="ma-2"
                     color="red"
                     dark
                     @click="confirmRemoveDetalle(null)"
                   >
                     <v-icon dark left>mdi-cancel</v-icon>Cancelar
-                  </v-btn> -->
-                  <!-- <v-btn class="ma-2" color="success" dark @click="clickActualizarOrden()">
+                  </v-btn>
+                  <v-btn
+                    v-show="editItemOrden.estatus != 'C' && editItemOrden.estatus != 'PA'"
+                    class="ma-2"
+                    color="success"
+                    dark
+                    @click="clickActualizarOrden()"
+                  >
                     <v-icon dark left>mdi-check</v-icon>Actualizar
-                  </v-btn> -->
+                  </v-btn>
                 </v-col>
               </v-row>
             </v-card-title>
@@ -189,7 +195,11 @@
                       />
                     </td>
                     <td>{{ props.item.tipo_producto }}</td>
-                    <td v-show="!changePrice" @click="changePrice = true;" class="text-right">$ {{ $RMT.formatoPrecio(props.item.importe) }}</td>
+                    <td
+                      v-show="!changePrice"
+                      @click="changePrice = true;"
+                      class="text-right"
+                    >$ {{ $RMT.formatoPrecio(props.item.importe) }}</td>
                     <td
                       style="width: 200px !important; text-align:right !important"
                       v-show="changePrice"
@@ -413,8 +423,9 @@
                   item-text="nombre"
                   label="Banco"
                   :rules="
-                    comprobantesPago.id_tipo == 8 ||
-                    comprobantesPago.id_tipo == 9
+                    comprobantesPago.id_tipo !== 1 ||
+                    comprobantesPago.id_tipo !== 15 ||
+                    comprobantesPago.id_tipo !== 10
                       ? bancoRules
                       : []
                   "
@@ -462,8 +473,9 @@
                   no-data-text="No se encontró cuentas para el banco seleccionado"
                   @change="comisionBancaria()"
                   :rules="
-                    comprobantesPago.id_tipo == 8 ||
-                    comprobantesPago.id_tipo == 9
+                    comprobantesPago.id_tipo !== 1 ||
+                    comprobantesPago.id_tipo !== 15 ||
+                    comprobantesPago.id_tipo !== 10
                       ? bancoRules
                       : []
                   "
@@ -921,7 +933,7 @@ export default {
           this.editItemOrden.id_orden_pago +
           "?";
         this.mensaje_confirmacion_body =
-          "Estas a punto de cancelar la orden. Esta acción es irreversible. Si se detecta saldo a favor, se agregará a la cuenta de fondo del agencia.";
+          "Estas a punto de cancelar la orden. Esta acción es irreversible.";
       } else {
         this.itemEliminar = item;
         this.idEliminar = this.prefijoIdentificador(
@@ -931,10 +943,10 @@ export default {
         this.mensaje_confirmacion_title =
           "¿Estas seguro de eliminar el artículo " + this.idEliminar + "?";
         this.mensaje_confirmacion_body =
-          "Estas a punto de eliminar un detalle de la orden. Esta acción es irreversible. Si se detecta saldo a favor, se agregará a la cuenta de fondo del agencia.";
+          "Estas a punto de eliminar un detalle de la orden. Esta acción es irreversible.";
       }
     },
-    clickActualizarOrden(){
+    clickActualizarOrden() {
       var nuevoImporte = this.sumaNuevoImporte();
       this.editItemOrden.importe_total = nuevoImporte;
       this.actualizarItem();
@@ -1429,6 +1441,14 @@ export default {
       } else {
         return true;
       }
+    },
+    fechaHoy(log){
+      var bandera = false;
+      
+      if (moment(log).format("DD/MM/YYYY") == moment().format('DD/MM/YYYY')) {
+        bandera = true;
+      }
+      return bandera;
     },
     resetCampos() {
       // if (this.comprobantesPago.id_tipo !== "15" && this.ultimo_importe_pagado > 0) {

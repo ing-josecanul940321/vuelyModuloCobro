@@ -13,6 +13,7 @@ import ordenesCompra from './ordenesCompra';
 import comprobantesPago from './comprobantesPago'; 
 import catalogoCuentas from './catalogoCuentas';
 import polizas from './polizas';
+import movimientoServicios from './movimientoServicios';
 
 Vue.use(Router)
 
@@ -32,7 +33,8 @@ export default new Router({
 		ordenesCompra,
 		comprobantesPago,
 		catalogoCuentas,
-		polizas
+		polizas,
+		movimientoServicios,
 		// {
 		// 	path: '/callback',
 		// 	component: Auth0CallBack
