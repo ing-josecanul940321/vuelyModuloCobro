@@ -101,6 +101,15 @@ export const menus = {
 			exact: true,
 			label:'Old'
 		},
+		{
+			action: 'fas fa-exchange',
+			title: 'Movimiento de Servicios',
+			active: false,
+			items: null,
+			path: '/movimientoServicios',
+			exact: true,
+			label:'Old'
+		},
 	]
 
 }

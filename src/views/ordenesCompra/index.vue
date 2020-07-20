@@ -37,7 +37,7 @@
                 <td>{{ (props.item.nombre_hotel) ? props.item.nombre_hotel : 'Tour' }}</td>
                 <td class="text-center">{{ formatDate(props.item.log) }}</td>
                 <td class="text-right">$ {{ $RMT.formatoPrecio(props.item.importe_total) }}</td>
-                <td>{{ props.item.observaciones }}</td>
+                <td style="white-space: initial !important;">{{ props.item.observaciones }}</td>
                 <td>
                   <v-chip
                     :color="getEstatus(props.item.estatus, 'color')"
@@ -78,7 +78,7 @@
                     <span>Pagar Orden de Compra</span>
                   </v-tooltip>
                 </td>
-                <td>{{ props.item.nombre_usuario }}</td>
+                <td style="white-space: initial !important;">{{ props.item.nombre_usuario }}</td>
               </tr>
             </template>
           </v-data-table>
@@ -100,7 +100,7 @@
                   <v-btn class="ma-2" color="red" dark @click="confirmRemoveDetalle(null)">
                     <v-icon dark left>mdi-cancel</v-icon>Cancelar
                   </v-btn>
-                  <v-btn
+                  <!-- <v-btn
                     v-show="editItemOrden.estatus != 'C' && editItemOrden.estatus != 'PA'"
                     class="ma-2"
                     color="success"
@@ -108,7 +108,7 @@
                     @click="clickActualizarOrden()"
                   >
                     <v-icon dark left>mdi-check</v-icon>Actualizar
-                  </v-btn>
+                  </v-btn> -->
                 </v-col>
               </v-row>
             </v-card-title>
@@ -168,20 +168,20 @@
                         >B{{ props.item.identificador }}</a>
                       </span>
                     </td>
-                    <!-- <td>{{ props.item.descripcion }}</td> -->
-                    <td
+                    <td style="white-space: initial !important;">{{ props.item.descripcion }}</td>
+                    <!-- <td
                       v-show="showDescription == false"
                       @click="showDescription = true;"
-                    >{{ props.item.descripcion }}</td>
-                    <td v-show="showDescription == true">
+                    >{{ props.item.descripcion }}</td> -->
+                    <!-- <td v-show="showDescription == true">
                       <v-text-field
                         v-model.lazy="props.item.descripcion"
                         @keyup.enter="showDescription = false; $emit('update');"
                         autofocus
                       />
-                    </td>
+                    </td> -->
                     <td>{{ props.item.tipo_producto }}</td>
-                    <td
+                    <!-- <td
                       v-show="!changePrice"
                       @click="changePrice = true;"
                       class="text-right"
@@ -197,10 +197,10 @@
                         @keyup.enter="changePrice = false; $emit('update');"
                         autofocus
                       />
-                    </td>
-                    <!-- <td class="text-right">$ {{ $RMT.formatoPrecio(props.item.importe) }}</td> -->
+                    </td> -->
+                    <td class="text-right">$ {{ $RMT.formatoPrecio(props.item.importe) }}</td>
                     <td>
-                      <v-btn
+                      <!-- <v-btn
                         v-show="editItemOrden.estatus !== 'C' && editItemOrden.estatus !== 'PA' && array_detalles.length > 1"
                         class="ma-2"
                         text
@@ -209,7 +209,7 @@
                         @click="confirmRemoveDetalle(props.item)"
                       >
                         <v-icon>fas fa-window-close</v-icon>
-                      </v-btn>
+                      </v-btn> -->
                     </td>
                   </tr>
                 </template>
@@ -258,7 +258,7 @@
                 :disabled="loadingConfirm"
                 color="error darken-1"
                 @click="cancelItem(); loadingConfirm = true;"
-              >Cancelar</v-btn>
+              >Cancelar Orden</v-btn>
               <!-- <v-btn color="green darken-1" dark @click="dialog_guardar_pagar=true">GUARDAR</v-btn> -->
             </v-card-actions>
           </v-card>
@@ -409,12 +409,7 @@
                   item-value="id_banco"
                   item-text="nombre"
                   label="Banco"
-                  :rules="
-                    comprobantesPago.id_tipo == 8 ||
-                    comprobantesPago.id_tipo == 9
-                      ? bancoRules
-                      : []
-                  "
+                  :rules=" (comprobantesPago.id_tipo != 1 && comprobantesPago.id_tipo != 15) ? bancoRules : [] "
                   @change="buscaCuentaBanco()"
                 ></v-select>
               </v-col>
@@ -459,12 +454,7 @@
                   label="Cuenta"
                   no-data-text="No se encontró cuentas para el banco seleccionado"
                   @change="comisionBancaria()"
-                  :rules="
-                    comprobantesPago.id_tipo == 8 ||
-                    comprobantesPago.id_tipo == 9
-                      ? bancoRules
-                      : []
-                  "
+                  :rules=" (comprobantesPago.id_tipo != 1 && comprobantesPago.id_tipo != 15) ? bancoRules : [] "
                 ></v-select>
               </v-col>
               <!-- <v-col
@@ -933,7 +923,7 @@ export default {
         this.mensaje_confirmacion_title =
           "¿Estas seguro de eliminar el artículo " + this.idEliminar + "?";
         this.mensaje_confirmacion_body =
-          "Estas a punto de eliminar un detalle de la orden. Esta acción es irreversible. Si se detecta saldo a favor, se agregará a la cuenta de fondo del agencia.";
+          "Estas a punto de eliminar un detalle de la orden. Esta acción es irreversible.";
       }
     },
     clickActualizarOrden() {

@@ -20,7 +20,7 @@
               <tr>
                 <td class="text-right">
                   <a
-                    :href="redirectRMT + 'contabilidad/ordenPago/GeneratePdf/idOrden/' + props.item.id_orden_pago + '/formato/' + props.item.tipo_formato"
+                    :href="redirectRMT + 'contabilidad/'+ (props.item.tipo == 'Orden de Pago' ? 'ordenPago' : 'ordenCompra') + '/GeneratePdf/idOrden/' + props.item.id_orden_pago + '/formato/' + props.item.tipo_formato"
                     target="_blank"
                   >{{ props.item.id_comprobante_pago }}</a>
                 </td>

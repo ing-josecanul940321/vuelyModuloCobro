@@ -37,7 +37,7 @@
                 <td>{{ props.item.nombre_agencia }}</td>
                 <td class="text-center">{{ formatDate(props.item.log) }}</td>
                 <td class="text-right">$ {{ $RMT.formatoPrecio(props.item.importe_total) }}</td>
-                <td>{{ props.item.observaciones }}</td>
+                <td style="white-space: initial !important;">{{ props.item.observaciones }}</td>
                 <td>
                   <v-chip
                     :color="getEstatus(props.item.estatus, 'color')"
@@ -72,7 +72,7 @@
                     <span>Pagar Orden de pago</span>
                   </v-tooltip>
                 </td>
-                <td>{{ props.item.nombre_usuario }}</td>
+                <td style="white-space: initial !important;">{{ props.item.nombre_usuario }}</td>
               </tr>
             </template>
           </v-data-table>
@@ -97,7 +97,7 @@
                   >
                     <v-icon dark left>mdi-cancel</v-icon>Cancelar
                   </v-btn>
-                  <v-btn
+                  <!-- <v-btn
                     v-show="editItemOrden.estatus != 'C' && editItemOrden.estatus != 'PA'"
                     class="ma-2"
                     color="success"
@@ -105,7 +105,7 @@
                     @click="clickActualizarOrden()"
                   >
                     <v-icon dark left>mdi-check</v-icon>Actualizar
-                  </v-btn>
+                  </v-btn> -->
                 </v-col>
               </v-row>
             </v-card-title>
@@ -183,24 +183,27 @@
                         >{{ props.item.identificador }}</a>
                       </span>
                     </td>
-                    <td v-show="showDescription == false" @click="showDescription = true;">
-                      <!-- <td> -->
+                    <!-- <td v-show="showDescription == false" @click="showDescription = true;"> -->
+                    <td style="white-space: initial !important;">
                       {{ props.item.descripcion }}
                     </td>
-                    <td v-show="showDescription == true">
+                    <!-- <td v-show="showDescription == true">
                       <v-text-field
                         v-model.lazy="props.item.descripcion"
                         @keyup.enter="showDescription = false; $emit('update');"
                         autofocus
                       />
-                    </td>
+                    </td> -->
                     <td>{{ props.item.tipo_producto }}</td>
                     <td
+                      class="text-right"
+                    >$ {{ $RMT.formatoPrecio(props.item.importe) }}</td>
+                    <!-- <td
                       v-show="!changePrice"
                       @click="changePrice = true;"
                       class="text-right"
-                    >$ {{ $RMT.formatoPrecio(props.item.importe) }}</td>
-                    <td
+                    >$ {{ $RMT.formatoPrecio(props.item.importe) }}</td> -->
+                    <!-- <td
                       style="width: 200px !important; text-align:right !important"
                       v-show="changePrice"
                     >
@@ -211,8 +214,8 @@
                         @keyup.enter="changePrice = false; $emit('update');"
                         autofocus
                       />
-                    </td>
-                    <td>
+                    </td> -->
+                    <!-- <td>
                       <v-btn
                         v-show="editItemOrden.estatus !== 'C' && editItemOrden.estatus !== 'PA' && array_detalles.length > 1"
                         class="ma-2"
@@ -223,7 +226,7 @@
                       >
                         <v-icon>fas fa-window-close</v-icon>
                       </v-btn>
-                    </td>
+                    </td> -->
                   </tr>
                 </template>
               </v-data-table>
@@ -271,7 +274,7 @@
                 :disabled="loadingConfirm"
                 color="error darken-1"
                 @click="cancelItem(); loadingConfirm = true;"
-              >Cancelar</v-btn>
+              >Cancelar Orden</v-btn>
               <!-- <v-btn color="green darken-1" dark @click="dialog_guardar_pagar=true">GUARDAR</v-btn> -->
             </v-card-actions>
           </v-card>
@@ -422,13 +425,7 @@
                   item-value="id_banco"
                   item-text="nombre"
                   label="Banco"
-                  :rules="
-                    comprobantesPago.id_tipo !== 1 ||
-                    comprobantesPago.id_tipo !== 15 ||
-                    comprobantesPago.id_tipo !== 10
-                      ? bancoRules
-                      : []
-                  "
+                  :rules=" (comprobantesPago.id_tipo != 1 && comprobantesPago.id_tipo != 15) ? bancoRules : [] "
                   @change="buscaCuentaBanco()"
                 ></v-select>
               </v-col>
@@ -472,13 +469,7 @@
                   label="Cuenta"
                   no-data-text="No se encontró cuentas para el banco seleccionado"
                   @change="comisionBancaria()"
-                  :rules="
-                    comprobantesPago.id_tipo !== 1 ||
-                    comprobantesPago.id_tipo !== 15 ||
-                    comprobantesPago.id_tipo !== 10
-                      ? bancoRules
-                      : []
-                  "
+                  :rules=" (comprobantesPago.id_tipo != 1 && comprobantesPago.id_tipo != 15) ? bancoRules : [] "
                 ></v-select>
               </v-col>
               <v-col

@@ -436,12 +436,20 @@
           <v-col cols="2" md="2" class="text-center">
             <v-btn color="green" block dark @click="confirmarModalOrden(); ">Guardar</v-btn>
           </v-col>
-          <v-col cols="2" md="2" class="text-center">
+          <!-- <v-col cols="2" md="2" class="text-center">
             <v-btn
               color="green"
               block
               dark
               @click="confirmarModalOrden(); agencia_pagar_orden = true;"
+            >Guardar y Pagar</v-btn>
+          </v-col> -->
+          <v-col cols="2" md="2" class="text-center">
+            <v-btn
+              color="green"
+              block
+              dark
+              @click="dialog_guardar_pagar = true;"
             >Guardar y Pagar</v-btn>
           </v-col>
           <!-- <v-col>
@@ -587,7 +595,7 @@
                     @change="resetCampos(); getPolizas();"
                   />
                   <label :for="'control_'+indexRadio">
-                    <p style="font-size:12px;">{{radioButtons.descripcion}}</p>
+                    <p style="font-size:12px;">{{radioButtons.id_tipo == '10' ? 'INTERCAMBIO' : radioButtons.descripcion}}</p>
                     <v-icon>{{iconoTipoPago(radioButtons.id_tipo)}}</v-icon>
                   </label>
                 </div>
@@ -624,7 +632,7 @@
               <v-col
                 cols="12"
                 md="6"
-                v-show="comprobantesPago.id_tipo == '2' || comprobantesPago.id_tipo == '6' || comprobantesPago.id_tipo == '7' || comprobantesPago.id_tipo == '10'"
+                v-show="comprobantesPago.id_tipo == '2' || comprobantesPago.id_tipo == '6' || comprobantesPago.id_tipo == '7'"
               >
                 <v-text-field v-model="comprobantesPago.referencia" label="Referencia"></v-text-field>
               </v-col>
@@ -646,7 +654,7 @@
                   item-value="id_banco"
                   item-text="nombre"
                   label="Banco"
-                  :rules="(comprobantesPago.id_tipo !== 1 || comprobantesPago.id_tipo !== 15) ? bancoRules : []"
+                  :rules="(comprobantesPago.id_tipo != 1 && comprobantesPago.id_tipo != 15) ? bancoRules : []"
                   @change="buscaCuentaBanco()"
                 ></v-select>
               </v-col>
@@ -674,7 +682,7 @@
                   label="Cuenta"
                   no-data-text="No se encontró cuentas para el banco seleccionado"
                   @change="comisionBancaria()"
-                  :rules="(comprobantesPago.id_tipo !== 1 || comprobantesPago.id_tipo !== 15) ? bancoRules : []"
+                  :rules="(comprobantesPago.id_tipo != 1 && comprobantesPago.id_tipo != 15) ? bancoRules : []"
                 ></v-select>
               </v-col>
               <v-col

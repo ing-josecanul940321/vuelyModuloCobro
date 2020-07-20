@@ -1080,9 +1080,11 @@ export default {
 
         },
         showMetodoPago(item) {
+            console.log(item + '-' + this.tipo_modulo + '-' + this.pagar_a + '-' + this.pagar_a);
             if (item == '15' && (this.es_cuenta_fondo == true || this.tipo_modulo == '1')) {
                 return false;
             } else if(item == '10' && this.tipo_modulo == '0' && (this.pagar_a == 'agencia' || this.pagar_a == 'tour')) {
+                console.log(item);
                 return false;
             }else {
                 return true;
