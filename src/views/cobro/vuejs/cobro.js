@@ -524,10 +524,18 @@ export default {
         },
         getPolizas() {
             this.loaderPoliza = true;
+            var idFondo = 0;
+            var busquedaUrl = this.redirectRMTApi + "contabilidad/comprobantesPago/polizasAgencia/agencia/";
+            if (this.pagar_a == 'agencia') {
+                idFondo = this.model_agencia_selected.id_agencia;
+            }else if (this.pagar_a == 'hotel') {
+                idFondo = this.model_hotel_selected.id_hotel;
+                busquedaUrl = this.redirectRMTApi + "contabilidad/comprobantesPago/polizasAgencia/hotel/";
+            }
             if (this.comprobantesPago.id_tipo == '15') {
                 this.$http
                     .get(
-                        this.redirectRMTApi + "contabilidad/comprobantesPago/polizasAgencia/agencia/" + this.model_agencia_selected.id_agencia
+                        busquedaUrl + idFondo
                     )
                     .then(
                         function (response) {
@@ -1080,11 +1088,11 @@ export default {
 
         },
         showMetodoPago(item) {
-            console.log(item + '-' + this.tipo_modulo + '-' + this.pagar_a + '-' + this.pagar_a);
-            if (item == '15' && (this.es_cuenta_fondo == true || this.tipo_modulo == '1')) {
+            // console.log(item + '-' + this.tipo_modulo + '-' + this.pagar_a + '-' + this.pagar_a);
+            if (item == '15' && (this.es_cuenta_fondo == true || (this.tipo_modulo == '1' && (this.pagar_a == 'agencia' || this.pagar_a == 'tour')))) {
                 return false;
-            } else if(item == '10' && this.tipo_modulo == '0' && (this.pagar_a == 'agencia' || this.pagar_a == 'tour')) {
-                console.log(item);
+            } else if(item == '10' && (this.tipo_modulo == '0' || (this.tipo_modulo == '1' && (this.pagar_a == 'agencia' || this.pagar_a == 'tour')))) {
+                // console.log(item + 'aqui');
                 return false;
             }else {
                 return true;
